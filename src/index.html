@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Command Deck</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="cd">
+    <div class="cd-wrap">
+      <div class="cd-head">
+        <div>
+          <h1 class="cd-title">Command <em>Deck</em></h1>
+          <div class="cd-sub">fill the blanks · dry-run · execute — for the commands you forget every few days</div>
+        </div>
+        <button class="cd-gear" id="open-settings" title="Settings">⚙</button>
+      </div>
+      <div class="cd-tabs" id="tabs"></div>
+      <div class="cd-grid" id="grid"></div>
+      <div class="cd-note" id="note"></div>
+    </div>
+  </div>
+
+  <!-- Output drawer -->
+  <div class="cd-drawer" id="drawer">
+    <div class="cd-drawer-h">
+      <span id="drawer-title">output</span>
+      <div>
+        <span class="cd-drawer-status" id="drawer-status"></span>
+        <button class="cd-iconbtn" id="drawer-clear" title="Clear">clear</button>
+        <button class="cd-iconbtn" id="drawer-close" title="Close">✕</button>
+      </div>
+    </div>
+    <pre class="cd-drawer-body" id="drawer-body"></pre>
+  </div>
+
+  <!-- Add/Edit template modal -->
+  <div class="cd-modal-bg" id="modal" style="display:none">
+    <div class="cd-modal">
+      <h2 id="modal-title">New template</h2>
+      <div class="hint">Wrap each fill-in part in curly braces, e.g. <code>scp {file} {host}:{dest}</code>. Each <code>{token}</code> becomes a field.</div>
+      <label>Name</label>
+      <input id="m-name" placeholder="Tar + compress a folder" />
+      <label>Category (existing or new tab)</label>
+      <input id="m-cat" list="m-cats" placeholder="rsync" />
+      <datalist id="m-cats"></datalist>
+      <label>Description</label>
+      <textarea id="m-desc" placeholder="What it does / when to use it"></textarea>
+      <label>Command pattern</label>
+      <textarea id="m-pattern" placeholder="tar czf {name}.tar.gz {dir}"></textarea>
+      <label>Dry-run flag (optional, e.g. -n). Leave blank if none.</label>
+      <input id="m-dry" placeholder="-n" />
+      <div class="cd-tokenhint" id="m-tokens"></div>
+      <div class="cd-modal-actions">
+        <button class="cd-btn" id="m-cancel">Cancel</button>
+        <button class="cd-btn primary" id="m-save">Save template</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings modal -->
+  <div class="cd-modal-bg" id="settings" style="display:none">
+    <div class="cd-modal">
+      <h2>Settings</h2>
+      <div class="hint">Templates are plain <code>.toml</code> files — one per tab — in the folder below. Edit them by hand, version them in git, sync them to the cluster.</div>
+      <label>Templates directory</label>
+      <input id="s-dir" />
+      <label>Login shell (so SSH agent / PATH / ssh config resolve)</label>
+      <input id="s-shell" placeholder="/bin/zsh" />
+      <label>External terminal</label>
+      <select id="s-term">
+        <option value="terminal">Terminal.app</option>
+        <option value="iterm">iTerm</option>
+      </select>
+      <div class="cd-modal-actions">
+        <button class="cd-btn" id="s-cancel">Cancel</button>
+        <button class="cd-btn primary" id="s-save">Save &amp; reload</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
