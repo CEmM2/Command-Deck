@@ -66,7 +66,7 @@ pub struct Config {
     pub guides_dir: String,
     /// Login shell used to run commands so SSH agent / PATH / ssh config resolve.
     pub shell: String,
-    /// "iterm" or "terminal" for the external-terminal handoff.
+    /// "terminal", "iterm", or "warp" for the external-terminal handoff.
     pub terminal: String,
 }
 
@@ -83,7 +83,9 @@ impl Default for Config {
 }
 
 pub fn dirs_home() -> PathBuf {
-    std::env::var("HOME").map(PathBuf::from).unwrap_or_else(|_| PathBuf::from("/tmp"))
+    std::env::var("HOME")
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| PathBuf::from("/tmp"))
 }
 
 fn config_path() -> PathBuf {
@@ -232,7 +234,9 @@ pub fn read_guide(dir: &str, name: &str) -> Result<GuideContent, String> {
         return Err(format!("guide not found: {name}"));
     }
 
-    let kind = guide_kind(&path).ok_or("unsupported guide file type")?.to_string();
+    let kind = guide_kind(&path)
+        .ok_or("unsupported guide file type")?
+        .to_string();
     let body = fs::read_to_string(&path).map_err(|e| e.to_string())?;
     let title = guide_title(name, &kind, &body);
 

@@ -26,9 +26,9 @@ command-deck/
 │   ├── icons/              # PNGs; run `tauri icon` for a proper .icns
 │   └── src/
 │       ├── main.rs         # command wiring
-│       ├── store.rs        # config + TOML template loading/saving
+│       ├── store.rs        # config + TOML template/guide loading/saving
 │       └── runner.rs       # dry-run / streaming exec / terminal handoff
-└── templates/              # (created on first run in your config dir)
+└── com_dat/                # optional local guides / reference docs
 ```
 
 ## Prerequisites (one time)
@@ -62,9 +62,24 @@ right-click → Open (or `xattr -dr com.apple.quarantine "Command Deck.app"`).
 
 Templates live as **one TOML file per tab** in a directory you set in
 **Settings** (default `~/.config/command-deck/templates/`). On first run the app
-seeds `rsync.toml`, `git worktree.toml`, and `ssh.toml` there. Because they're
-just files you can hand-edit them, keep them in git, or rsync them to the
-cluster.
+seeds useful starter tabs there. Because they're just files you can hand-edit
+them, keep them in git, or rsync them to the cluster.
+
+Current seeded tabs include:
+
+- `rsync.toml`
+- `git worktree.toml`
+- `ssh.toml`
+- `pbs.toml`
+- `gcp gpu vm.toml`
+- `gcp gpu admin.toml`
+- `gpu sync.toml`
+- `gpu remote.toml`
+- `gpu tmux.toml`
+- `gpu profiling.toml`
+
+If a templates directory already exists, Command Deck adds missing seeded tabs
+without overwriting files you already edited.
 
 A template looks like:
 
@@ -96,14 +111,37 @@ fields = [
 You can also add/edit templates from the UI (**+ add template** / **edit**); the
 app writes the changes straight back to the TOML file.
 
-## The four actions per template
+## Guides
+
+Guides are local `.html`, `.md`, `.markdown`, or `.txt` files in the directory
+set in **Settings** (default `~/.config/command-deck/guides/`). The **guides**
+button opens a browser-style guide view inside the app.
+
+Set a template's optional `guide` field to connect a command card to a guide:
+
+```toml
+guide = "gcp-gpu-vm-cheatsheet.md"
+```
+
+When that file exists in the guides directory, the card shows a **guide** action
+button. HTML guides render in a sandboxed frame; Markdown and text guides render
+directly in the app.
+
+For this repo's current GCP notes, point the guides directory at:
+
+```text
+/Users/shmuelosovski/Github/Personal/command-deck/com_dat
+```
+
+## Template actions
 
 | Action | What it does |
 |--------|--------------|
 | **copy** | Copies the assembled command to the clipboard. |
 | **dry-run** | Runs the dry-run variant, captures output, shows it in the drawer. Disabled if the template declares no dry-run. |
 | **execute ▸ app** | Runs for real, streaming stdout/stderr live into the bottom drawer. Best for fire-and-forget rsync. |
-| **execute ▸ terminal** | Hands the command to Terminal.app or iTerm in a new window. Best for interactive/long-lived things — ssh tunnels, anything that prompts. |
+| **execute ▸ terminal** | Hands the command to Terminal.app, iTerm, or Warp in a new window/tab. Best for interactive/long-lived things — ssh tunnels, anything that prompts. |
+| **guide** | Opens the linked local guide file, when the template declares `guide`. |
 
 ## Why commands "just work" with SSH
 

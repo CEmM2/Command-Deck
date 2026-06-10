@@ -1,4 +1,5 @@
 use crate::store::Config;
+use std::fmt::Write as _;
 use std::io::{BufRead, BufReader};
 use std::process::{Command, Stdio};
 use std::thread;
@@ -34,7 +35,10 @@ pub fn run_stream(window: Window, cfg: Config, command: String) -> Result<(), St
     let t_out = thread::spawn(move || {
         let reader = BufReader::new(stdout);
         for line in reader.lines().map_while(Result::ok) {
-            let _ = w1.emit("run:line", serde_json::json!({ "stream": "stdout", "line": line }));
+            let _ = w1.emit(
+                "run:line",
+                serde_json::json!({ "stream": "stdout", "line": line }),
+            );
         }
     });
 
@@ -42,7 +46,10 @@ pub fn run_stream(window: Window, cfg: Config, command: String) -> Result<(), St
     let t_err = thread::spawn(move || {
         let reader = BufReader::new(stderr);
         for line in reader.lines().map_while(Result::ok) {
-            let _ = w2.emit("run:line", serde_json::json!({ "stream": "stderr", "line": line }));
+            let _ = w2.emit(
+                "run:line",
+                serde_json::json!({ "stream": "stderr", "line": line }),
+            );
         }
     });
 
@@ -84,6 +91,16 @@ pub fn run_capture(cfg: Config, command: String) -> Result<String, String> {
 /// password prompts, long-lived processes) work properly.
 #[tauri::command]
 pub fn run_in_terminal(cfg: Config, command: String) -> Result<(), String> {
+    if cfg.terminal == "warp" {
+        let command = percent_encode_url_component(&command);
+        let url = format!("warp://action/new_tab?command={command}");
+        Command::new("open")
+            .arg(url)
+            .spawn()
+            .map_err(|e| format!("warp handoff failed: {e}"))?;
+        return Ok(());
+    }
+
     // Escape double quotes and backslashes for embedding in AppleScript.
     let esc = command.replace('\\', "\\\\").replace('"', "\\\"");
 
@@ -112,4 +129,32 @@ end tell"#
         .spawn()
         .map_err(|e| format!("osascript failed: {e}"))?;
     Ok(())
+}
+
+fn percent_encode_url_component(value: &str) -> String {
+    let mut encoded = String::new();
+    for byte in value.bytes() {
+        match byte {
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'.' | b'_' | b'~' => {
+                encoded.push(byte as char);
+            }
+            _ => {
+                let _ = write!(&mut encoded, "%{byte:02X}");
+            }
+        }
+    }
+    encoded
+}
+
+#[cfg(test)]
+mod tests {
+    use super::percent_encode_url_component;
+
+    #[test]
+    fn percent_encodes_warp_command_url_component() {
+        assert_eq!(
+            percent_encode_url_component("echo hi && ls ~/data/$USER"),
+            "echo%20hi%20%26%26%20ls%20~%2Fdata%2F%24USER"
+        );
+    }
 }
