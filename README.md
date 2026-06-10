@@ -133,6 +133,13 @@ For this repo's current GCP notes, point the guides directory at:
 /Users/shmuelosovski/Github/Personal/command-deck/com_dat
 ```
 
+## Appearance
+
+Settings includes a **Theme** selector with `Dark` and `Bright` modes. The
+current visual style is adapted from the reference CSS kept under
+`com_dat/styles_ref/`, using the same chunky card borders, shadows, and
+light/dark color-token approach while keeping Command Deck's own HTML structure.
+
 ## Template actions
 
 | Action | What it does |

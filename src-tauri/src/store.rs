@@ -68,6 +68,9 @@ pub struct Config {
     pub shell: String,
     /// "terminal", "iterm", or "warp" for the external-terminal handoff.
     pub terminal: String,
+    /// "dark" or "bright" for the UI theme.
+    #[serde(default = "default_theme")]
+    pub theme: String,
 }
 
 impl Default for Config {
@@ -78,6 +81,7 @@ impl Default for Config {
             guides_dir: default_guides_dir(),
             shell,
             terminal: "terminal".into(),
+            theme: default_theme(),
         }
     }
 }
@@ -111,6 +115,10 @@ fn default_guides_dir() -> String {
         .join("guides")
         .to_string_lossy()
         .into_owned()
+}
+
+fn default_theme() -> String {
+    "dark".into()
 }
 
 pub fn load_config() -> Config {
@@ -1026,6 +1034,7 @@ terminal = "terminal"
 
         assert_eq!(cfg.templates_dir, "/tmp/command-deck/templates");
         assert!(cfg.guides_dir.ends_with(".config/command-deck/guides"));
+        assert_eq!(cfg.theme, "dark");
     }
 
     #[test]

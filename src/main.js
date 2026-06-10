@@ -160,6 +160,14 @@ function render() {
     `templates dir: ${cfg ? cfg.templatesDir || cfg.templates_dir : "?"} · guides dir: ${cfg ? cfg.guidesDir || cfg.guides_dir : "?"}`;
 }
 
+function normalizeTheme(theme) {
+  return theme === "bright" ? "bright" : "dark";
+}
+
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = normalizeTheme(theme);
+}
+
 // ---- drawer (output) ----
 function openDrawer(title, status) {
   $("drawer").classList.add("open");
@@ -280,6 +288,7 @@ $("open-settings").onclick = () => {
   $("s-guides-dir").value = cfg.guides_dir || cfg.guidesDir || "";
   $("s-shell").value = cfg.shell || "";
   $("s-term").value = cfg.terminal || "terminal";
+  $("s-theme").value = normalizeTheme(cfg.theme);
   $("settings").style.display = "flex";
 };
 $("s-cancel").onclick = () => { $("settings").style.display = "none"; };
@@ -289,8 +298,10 @@ $("s-save").onclick = async () => {
     guides_dir: $("s-guides-dir").value.trim(),
     shell: $("s-shell").value.trim(),
     terminal: $("s-term").value,
+    theme: normalizeTheme($("s-theme").value),
   };
   cfg = await invoke("set_config", { cfg: next });
+  applyTheme(cfg.theme);
   $("settings").style.display = "none";
   await reload();
 };
@@ -445,6 +456,7 @@ async function reload() {
 }
 async function boot() {
   cfg = await invoke("get_config");
+  applyTheme(cfg.theme);
   await reload();
 }
 boot();
