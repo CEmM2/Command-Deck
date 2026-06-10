@@ -8,6 +8,15 @@ dist/
 src-tauri/target/
 src-tauri/gen/
 
+# Generated Tauri icon outputs
+src-tauri/icons/64x64.png
+src-tauri/icons/Square*Logo.png
+src-tauri/icons/StoreLogo.png
+src-tauri/icons/icon.icns
+src-tauri/icons/icon.ico
+src-tauri/icons/android/
+src-tauri/icons/ios/
+
 # Logs
 *.log
 npm-debug.log*
