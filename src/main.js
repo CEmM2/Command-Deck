@@ -4,8 +4,10 @@ import { listen } from "@tauri-apps/api/event";
 // ---- state ----
 let cfg = null;
 let categories = [];   // [{name, templates:[...]}]
+let guides = [];       // [{name,title,kind}]
 let active = null;
 let editing = null;    // template id being edited, or null for new
+let activeGuide = null;
 
 const $ = (id) => document.getElementById(id);
 
@@ -81,6 +83,7 @@ function renderCard(tpl) {
         <button class="cd-act dry" ${dry ? "" : "disabled title='no dry run for this command'"}>dry-run</button>
         <button class="cd-act exec">execute ▸ app</button>
         <button class="cd-act term">execute ▸ terminal</button>
+        ${tpl.guide ? `<button class="cd-act guide" title="open ${esc(tpl.guide)}">guide</button>` : ""}
         <button class="cd-iconbtn edit">edit</button>
         <button class="cd-iconbtn del">delete</button>
       </div>
@@ -141,6 +144,8 @@ function renderCard(tpl) {
       await invoke("run_in_terminal", { cfg, command: cmd });
     } catch (err) { openDrawer("terminal handoff", String(err)); setStatus("error"); }
   };
+  const guideBtn = card.querySelector(".guide");
+  if (guideBtn) guideBtn.onclick = () => openGuide(tpl.guide);
   // edit / delete
   card.querySelector(".edit").onclick = () => openModal(tpl);
   card.querySelector(".del").onclick = () => deleteTemplate(tpl);
@@ -148,8 +153,12 @@ function renderCard(tpl) {
   return card;
 }
 
-function render() { renderTabs(); renderGrid(); $("note").textContent =
-  `templates dir: ${cfg ? cfg.templatesDir || cfg.templates_dir : "?"}`; }
+function render() {
+  renderTabs();
+  renderGrid();
+  $("note").textContent =
+    `templates dir: ${cfg ? cfg.templatesDir || cfg.templates_dir : "?"} · guides dir: ${cfg ? cfg.guidesDir || cfg.guides_dir : "?"}`;
+}
 
 // ---- drawer (output) ----
 function openDrawer(title, status) {
@@ -190,10 +199,13 @@ function openModal(tpl) {
   $("m-name").value = tpl ? tpl.name : "";
   $("m-cat").value = tpl ? tpl.category : (active || "");
   $("m-desc").value = tpl ? tpl.desc : "";
+  $("m-guide").value = tpl ? (tpl.guide || "") : "";
   $("m-pattern").value = tpl ? tpl.pattern : "";
   $("m-dry").value = tpl && tpl.dry_run ? (tpl.dry_run.flag || "") : "";
   const dl = $("m-cats"); dl.innerHTML = "";
   categories.forEach((c) => { const o = document.createElement("option"); o.value = c.name; dl.appendChild(o); });
+  const guideList = $("m-guides"); guideList.innerHTML = "";
+  guides.forEach((g) => { const o = document.createElement("option"); o.value = g.name; guideList.appendChild(o); });
   updateTokens();
   $("modal").style.display = "flex";
 }
@@ -217,6 +229,7 @@ $("m-save").onclick = async () => {
     id: editing || (name.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Math.random().toString(36).slice(2, 6)),
     name,
     desc: $("m-desc").value.trim(),
+    guide: $("m-guide").value.trim(),
     pattern,
     fields: toks.map((k) => ({ key: k, label: k, placeholder: "", default: "" })),
     dry_run: dryFlag ? { flag: dryFlag } : {},
@@ -264,17 +277,158 @@ async function persist(catName) {
 // ---- settings ----
 $("open-settings").onclick = () => {
   $("s-dir").value = cfg.templates_dir || cfg.templatesDir || "";
+  $("s-guides-dir").value = cfg.guides_dir || cfg.guidesDir || "";
   $("s-shell").value = cfg.shell || "";
   $("s-term").value = cfg.terminal || "terminal";
   $("settings").style.display = "flex";
 };
 $("s-cancel").onclick = () => { $("settings").style.display = "none"; };
 $("s-save").onclick = async () => {
-  const next = { templates_dir: $("s-dir").value.trim(), shell: $("s-shell").value.trim(), terminal: $("s-term").value };
+  const next = {
+    templates_dir: $("s-dir").value.trim(),
+    guides_dir: $("s-guides-dir").value.trim(),
+    shell: $("s-shell").value.trim(),
+    terminal: $("s-term").value,
+  };
   cfg = await invoke("set_config", { cfg: next });
   $("settings").style.display = "none";
   await reload();
 };
+
+// ---- guides ----
+$("open-guides").onclick = async () => {
+  await reloadGuides();
+  renderGuideList();
+  $("guides").style.display = "flex";
+};
+$("guides-close").onclick = () => { $("guides").style.display = "none"; };
+
+async function reloadGuides() {
+  guides = await invoke("list_guides", { cfg });
+}
+
+function renderGuideList() {
+  const list = $("guide-list");
+  list.innerHTML = "";
+  $("guides-note").textContent = cfg ? (cfg.guides_dir || cfg.guidesDir || "") : "";
+
+  if (!guides.length) {
+    list.innerHTML = '<div class="cd-guide-empty">No guides found. Add .html or .md files to the guides directory.</div>';
+    $("guide-title").textContent = "No guides";
+    $("guide-body").innerHTML = "";
+    return;
+  }
+
+  guides.forEach((guide) => {
+    const btn = document.createElement("button");
+    btn.className = "cd-guide-item" + (guide.name === activeGuide ? " on" : "");
+    btn.innerHTML = `${esc(guide.title)}<small>${esc(guide.name)}</small>`;
+    btn.onclick = () => openGuide(guide.name);
+    list.appendChild(btn);
+  });
+}
+
+async function openGuide(name) {
+  if (!name) return;
+  try {
+    const guide = await invoke("read_guide", { cfg, name });
+    activeGuide = guide.name;
+    $("guides").style.display = "flex";
+    $("guide-title").textContent = guide.title;
+    const body = $("guide-body");
+    body.innerHTML = "";
+
+    if (guide.kind === "html") {
+      const frame = document.createElement("iframe");
+      frame.className = "cd-guide-frame";
+      frame.setAttribute("sandbox", "");
+      frame.srcdoc = guide.body;
+      body.appendChild(frame);
+    } else if (guide.kind === "markdown") {
+      const wrap = document.createElement("div");
+      wrap.className = "cd-guide-md";
+      wrap.innerHTML = renderMarkdown(guide.body);
+      body.appendChild(wrap);
+    } else {
+      const pre = document.createElement("pre");
+      pre.className = "cd-guide-md";
+      pre.textContent = guide.body;
+      body.appendChild(pre);
+    }
+
+    renderGuideList();
+  } catch (err) {
+    $("guides").style.display = "flex";
+    $("guide-title").textContent = "Guide error";
+    $("guide-body").innerHTML = `<div class="cd-guide-empty">${esc(String(err))}</div>`;
+  }
+}
+
+function renderMarkdown(md) {
+  const lines = md.split(/\r?\n/);
+  const out = [];
+  let inCode = false;
+  let inList = false;
+
+  const closeList = () => {
+    if (inList) {
+      out.push("</ul>");
+      inList = false;
+    }
+  };
+
+  for (const line of lines) {
+    if (line.startsWith("```")) {
+      if (inCode) {
+        out.push("</code></pre>");
+        inCode = false;
+      } else {
+        closeList();
+        out.push("<pre><code>");
+        inCode = true;
+      }
+      continue;
+    }
+
+    if (inCode) {
+      out.push(esc(line) + "\n");
+      continue;
+    }
+
+    if (!line.trim()) {
+      closeList();
+      continue;
+    }
+
+    if (line.startsWith("### ")) {
+      closeList();
+      out.push(`<h3>${inlineMarkdown(line.slice(4))}</h3>`);
+    } else if (line.startsWith("## ")) {
+      closeList();
+      out.push(`<h2>${inlineMarkdown(line.slice(3))}</h2>`);
+    } else if (line.startsWith("# ")) {
+      closeList();
+      out.push(`<h1>${inlineMarkdown(line.slice(2))}</h1>`);
+    } else if (line.startsWith("- ")) {
+      if (!inList) {
+        out.push("<ul>");
+        inList = true;
+      }
+      out.push(`<li>${inlineMarkdown(line.slice(2))}</li>`);
+    } else {
+      closeList();
+      out.push(`<p>${inlineMarkdown(line)}</p>`);
+    }
+  }
+
+  closeList();
+  if (inCode) out.push("</code></pre>");
+  return out.join("\n");
+}
+
+function inlineMarkdown(s) {
+  return esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
+}
 
 // ---- util ----
 function esc(s) { return (s || "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
@@ -282,6 +436,7 @@ function flash(btn, cls) { btn.classList.add("done"); const old = btn.textConten
 
 // ---- boot ----
 async function reload() {
+  await reloadGuides();
   categories = await invoke("list_categories", { cfg });
   if (!active || !categories.find((c) => c.name === active)) {
     active = categories.length ? categories[0].name : null;

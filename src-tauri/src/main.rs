@@ -1,7 +1,7 @@
 mod runner;
 mod store;
 
-use store::{Category, Config, Template};
+use store::{Category, Config, Guide, GuideContent, Template};
 
 #[tauri::command]
 fn get_config() -> Config {
@@ -24,6 +24,16 @@ fn save_category(cfg: Config, category: String, templates: Vec<Template>) -> Res
     store::save_category(&cfg.templates_dir, &category, &templates)
 }
 
+#[tauri::command]
+fn list_guides(cfg: Config) -> Result<Vec<Guide>, String> {
+    store::list_guides(&cfg.guides_dir)
+}
+
+#[tauri::command]
+fn read_guide(cfg: Config, name: String) -> Result<GuideContent, String> {
+    store::read_guide(&cfg.guides_dir, &name)
+}
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -31,6 +41,8 @@ fn main() {
             set_config,
             list_categories,
             save_category,
+            list_guides,
+            read_guide,
             runner::run_stream,
             runner::run_capture,
             runner::run_in_terminal,

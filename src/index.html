@@ -17,7 +17,10 @@
           <h1 class="cd-title">Command <em>Deck</em></h1>
           <div class="cd-sub">fill the blanks · dry-run · execute — for the commands you forget every few days</div>
         </div>
-        <button class="cd-gear" id="open-settings" title="Settings">⚙</button>
+        <div class="cd-head-actions">
+          <button class="cd-head-btn" id="open-guides" title="Guides">guides</button>
+          <button class="cd-gear" id="open-settings" title="Settings">⚙</button>
+        </div>
       </div>
       <div class="cd-tabs" id="tabs"></div>
       <div class="cd-grid" id="grid"></div>
@@ -50,6 +53,9 @@
       <datalist id="m-cats"></datalist>
       <label>Description</label>
       <textarea id="m-desc" placeholder="What it does / when to use it"></textarea>
+      <label>Guide file (optional)</label>
+      <input id="m-guide" list="m-guides" placeholder="gcp-gpu-vm.html" />
+      <datalist id="m-guides"></datalist>
       <label>Command pattern</label>
       <textarea id="m-pattern" placeholder="tar czf {name}.tar.gz {dir}"></textarea>
       <label>Dry-run flag (optional, e.g. -n). Leave blank if none.</label>
@@ -69,6 +75,8 @@
       <div class="hint">Templates are plain <code>.toml</code> files — one per tab — in the folder below. Edit them by hand, version them in git, sync them to the cluster.</div>
       <label>Templates directory</label>
       <input id="s-dir" />
+      <label>Guides directory</label>
+      <input id="s-guides-dir" />
       <label>Login shell (so SSH agent / PATH / ssh config resolve)</label>
       <input id="s-shell" placeholder="/bin/zsh" />
       <label>External terminal</label>
@@ -79,6 +87,26 @@
       <div class="cd-modal-actions">
         <button class="cd-btn" id="s-cancel">Cancel</button>
         <button class="cd-btn primary" id="s-save">Save &amp; reload</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Guides modal -->
+  <div class="cd-modal-bg" id="guides" style="display:none">
+    <div class="cd-modal cd-guide-modal">
+      <div class="cd-guide-h">
+        <div>
+          <h2>Guides</h2>
+          <div class="hint" id="guides-note"></div>
+        </div>
+        <button class="cd-iconbtn" id="guides-close" title="Close">✕</button>
+      </div>
+      <div class="cd-guide-shell">
+        <div class="cd-guide-list" id="guide-list"></div>
+        <div class="cd-guide-view">
+          <div class="cd-guide-title" id="guide-title">Select a guide</div>
+          <div class="cd-guide-body" id="guide-body"></div>
+        </div>
       </div>
     </div>
   </div>

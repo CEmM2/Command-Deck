@@ -74,6 +74,7 @@ id = "rsync-push"
 name = "Push laptop -> remote"
 desc = "Copy a local dir up to the cluster."
 pattern = "rsync -avzP --delete {src} {host}:{dst}"
+guide = "gcp-gpu-vm-cheatsheet.md" # optional local guide file
 dry_run = { flag = "-n" }          # injected after the program name for dry-run
 fields = [
   { key = "src",  label = "Local path",  placeholder = "./project/" },
@@ -84,6 +85,9 @@ fields = [
 
 - Every `{token}` in `pattern` becomes an input field. Listing it in `fields`
   just adds a nice label/placeholder/default; an unlisted token still works.
+- `guide` is optional. When set, the card shows a **guide** button that opens a
+  matching `.html`, `.md`, `.markdown`, or `.txt` file from the guides directory
+  in Settings (default `~/.config/command-deck/guides/`).
 - **Dry-run options** (`dry_run = { ... }`):
   - `{ flag = "-n" }` — inject this flag after the program name (rsync-style).
   - `{ pattern = "..." }` — use a totally separate command for the preview.
