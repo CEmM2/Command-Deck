@@ -33,7 +33,7 @@
   --shadow-hover: 5px 6px 0 #000;
   --shadow-focus: 5px 6px 0 var(--accent);
   --topbar-bg: #161b22;
-  --topbar-accent: #e63b2e;
+  --topbar-accent: #d5a654;
   --topbar-text: #f0f6fc;
   --stripe: #e63b2e11;
   --modal-scrim: rgba(0, 0, 0, .68);
@@ -72,9 +72,9 @@
   --shadow: 3px 4px 0 #2b2b2b;
   --shadow-hover: 5px 6px 0 #2b2b2b;
   --shadow-focus: 5px 6px 0 var(--accent);
-  --topbar-bg: #e63b2e;
-  --topbar-accent: #b22e24;
-  --topbar-text: #ffffff;
+  --topbar-bg: #ffffff;
+  --topbar-accent: #d69a00;
+  --topbar-text: #171717;
   --stripe: #e63b2e22;
   --modal-scrim: rgba(43, 43, 43, .35);
   --guide-bg: #ffffff;
@@ -127,6 +127,26 @@ body {
   padding: 14px 16px;
   margin-bottom: 20px;
   transition: all .25s;
+}
+
+.cd-brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  min-width: 0;
+}
+
+.cd-brand-icon {
+  width: 96px;
+  height: 96px;
+  flex: 0 0 auto;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+  border: var(--line-w) solid color-mix(in srgb, var(--topbar-accent) 62%, var(--border));
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  box-shadow: 2px 3px 0 color-mix(in srgb, var(--topbar-accent) 45%, #000);
 }
 
 .cd-title {
@@ -748,6 +768,16 @@ body {
   .cd-head {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .cd-brand {
+    align-items: center;
+    width: 100%;
+  }
+
+  .cd-brand-icon {
+    width: 72px;
+    height: 72px;
   }
 
   .cd-head-actions {
