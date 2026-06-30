@@ -21,6 +21,17 @@ Use this pack to learn:
 6. Read **GCP cost and safety** before starting cloud VMs.
 7. Read the writing/research guides before touching shared papers.
 
+## Windows users
+
+Most lab commands assume a Linux shell. On Windows, use Command Deck to fill and copy commands, then paste them into:
+
+- an SSH terminal connected to your workstation;
+- a VS Code Remote terminal;
+- WSL;
+- Git Bash, only when appropriate.
+
+Do not run Linux/HPC commands directly in PowerShell unless the guide explicitly says so.
+
 ## The rule
 
 When you do not understand a command, do not run it just because a card can assemble it. Open the guide, read the intent, then run the command.

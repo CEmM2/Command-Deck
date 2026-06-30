@@ -186,6 +186,22 @@ On Linux, Command Deck supports guides, template filling, copy, dry-run, and in-
 | AppImage build | Supported |
 | `.deb` build | Supported |
 
+## Windows support
+
+Command Deck supports Windows in copy-only mode.
+
+Most lab templates are written for Linux/macOS/HPC shells. On Windows, Command Deck is intended as a guided command reference: fill in template fields, copy the generated command, and paste it into SSH, WSL, Git Bash, or a VS Code Remote terminal connected to your Linux workstation.
+
+Local execution is disabled by default on Windows.
+
+## Platform behavior
+
+| Platform | Guide browser | Fill templates | Copy command | Execute in app | Execute in terminal |
+|---|---:|---:|---:|---:|---:|
+| macOS | yes | yes | yes | yes | yes |
+| Linux | yes | yes | yes | yes | partial/planned |
+| Windows | yes | yes | yes | disabled by default | disabled by default |
+
 ## Why commands "just work" with SSH
 
 Commands run through your **login shell** (`$SHELL -lic '<command>'`), so your

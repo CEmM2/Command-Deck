@@ -11,6 +11,17 @@ let activeGuide = null;
 
 const $ = (id) => document.getElementById(id);
 
+function effectiveExecutionMode() {
+  const mode = cfg?.execution_mode || "auto";
+  if (mode === "copy_only") return "copy_only";
+  if (mode === "full") return "full";
+  return caps?.default_mode || "full";
+}
+
+function isCopyOnlyMode() {
+  return effectiveExecutionMode() === "copy_only";
+}
+
 // ---- command assembly ----
 function buildCommand(pattern, fields, values, dryFlag) {
   let out = pattern;
@@ -151,6 +162,8 @@ function renderCommandCard(tpl) {
 
   const dry = isCommandTemplate(tpl) ? dryPattern(tpl) : null;
 
+  const copyOnly = isCopyOnlyMode();
+
   card.innerHTML = `
     <div class="cd-card-h">
       <h3 class="cd-card-name"><span>${esc(tpl.name)}</span></h3>
@@ -159,11 +172,12 @@ function renderCommandCard(tpl) {
     <div class="cd-body">
       <div class="cd-fields"></div>
       <div class="cd-out"><code></code></div>
+      ${copyOnly ? `<div class="cd-mode-note">Copy-only mode: paste this command into SSH, WSL, Git Bash, VS Code Remote, or your Linux workstation terminal.</div>` : ""}
       <div class="cd-actions">
         <button class="cd-act copy">copy</button>
-        <button class="cd-act dry" ${dry ? "" : "disabled title='no dry run for this command'"}>dry-run</button>
-        <button class="cd-act exec">execute ▸ app</button>
-        <button class="cd-act term">execute ▸ terminal</button>
+        ${copyOnly ? "" : `<button class="cd-act dry" ${dry ? "" : "disabled title='no dry run for this command'"}>dry-run</button>`}
+        ${copyOnly ? "" : `<button class="cd-act exec">execute ▸ app</button>`}
+        ${copyOnly ? "" : `<button class="cd-act term">execute ▸ terminal</button>`}
         ${tpl.guide ? `<button class="cd-act guide" title="open ${esc(tpl.guide)}">guide</button>` : ""}
         <button class="cd-iconbtn edit">edit</button>
         <button class="cd-iconbtn del">delete</button>
@@ -423,6 +437,7 @@ $("open-settings").onclick = () => {
   }
   
   $("s-term").value = cfg.terminal || (caps && caps.os === "linux" ? "default" : "terminal");
+  $("s-execution-mode").value = cfg.execution_mode || "auto";
   $("s-theme").value = normalizeTheme(cfg.theme);
   $("settings").style.display = "flex";
 };
@@ -433,6 +448,7 @@ $("s-save").onclick = async () => {
     guides_dir: $("s-guides-dir").value.trim(),
     shell: $("s-shell").value.trim(),
     terminal: $("s-term").value,
+    execution_mode: $("s-execution-mode").value,
     theme: normalizeTheme($("s-theme").value),
   };
   cfg = await invoke("set_config", { cfg: next });

@@ -834,3 +834,16 @@ body {
 .cd-card.unsupported {
   outline: 2px dashed currentColor;
 }
+
+.cd-mode-note {
+  font-family: var(--font-main);
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  padding: 6px 10px;
+  background-color: var(--surface-secondary);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+}

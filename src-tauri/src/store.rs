@@ -83,6 +83,13 @@ pub struct Config {
     /// "dark" or "bright" for the UI theme.
     #[serde(default = "default_theme")]
     pub theme: String,
+    /// "auto", "copy_only", or "full" for execution mode.
+    #[serde(default = "default_execution_mode")]
+    pub execution_mode: String,
+}
+
+fn default_execution_mode() -> String {
+    "auto".into()
 }
 
 impl Default for Config {
@@ -94,6 +101,7 @@ impl Default for Config {
             shell,
             terminal: "terminal".into(),
             theme: default_theme(),
+            execution_mode: default_execution_mode(),
         }
     }
 }
@@ -105,14 +113,17 @@ pub fn dirs_home() -> PathBuf {
 }
 
 fn config_path() -> PathBuf {
-    dirs_home()
-        .join(".config")
-        .join("command-deck")
-        .join("config.toml")
+    command_deck_config_dir().join("config.toml")
 }
 
 fn command_deck_config_dir() -> PathBuf {
-    dirs_home().join(".config").join("command-deck")
+    let legacy = dirs_home().join(".config").join("command-deck");
+    if legacy.exists() {
+        return legacy;
+    }
+    dirs::config_dir()
+        .unwrap_or_else(|| dirs_home().join(".config"))
+        .join("command-deck")
 }
 
 fn default_templates_dir() -> String {
