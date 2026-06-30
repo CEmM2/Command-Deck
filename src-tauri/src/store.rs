@@ -241,7 +241,15 @@ pub fn list_guides(dir: &str) -> Result<Vec<Guide>, String> {
         .map_err(|e| e.to_string())?
         .filter_map(|e| e.ok())
         .map(|e| e.path())
-        .filter(|p| p.is_file() && guide_kind(p).is_some())
+        .filter(|p| {
+            p.is_file()
+                && guide_kind(p).is_some()
+                && !p
+                    .file_name()
+                    .and_then(|n| n.to_str())
+                    .map(|n| n.starts_with('_'))
+                    .unwrap_or(false)
+        })
         .collect();
     entries.sort();
 
@@ -256,6 +264,31 @@ pub fn list_guides(dir: &str) -> Result<Vec<Guide>, String> {
         let title = guide_title(&name, &kind, &body);
         guides.push(Guide { name, title, kind });
     }
+
+    let sidebar_path = path.join("_sidebar.txt");
+    if sidebar_path.is_file() {
+        if let Ok(content) = fs::read_to_string(&sidebar_path) {
+            let order: std::collections::HashMap<String, usize> = content
+                .lines()
+                .map(str::trim)
+                .filter(|line| !line.is_empty() && !line.starts_with('#'))
+                .enumerate()
+                .map(|(idx, name)| (name.to_string(), idx))
+                .collect();
+
+            guides.sort_by(|a, b| {
+                let a_idx = order.get(&a.name);
+                let b_idx = order.get(&b.name);
+                match (a_idx, b_idx) {
+                    (Some(a), Some(b)) => a.cmp(b),
+                    (Some(_), None) => std::cmp::Ordering::Less,
+                    (None, Some(_)) => std::cmp::Ordering::Greater,
+                    (None, None) => a.name.cmp(&b.name),
+                }
+            });
+        }
+    }
+
     Ok(guides)
 }
 
@@ -464,8 +497,8 @@ fn seed_missing_defaults(dir: &Path) -> Result<(), String> {
     Ok(())
 }
 
-fn extra_default_files() -> [(&'static str, &'static str); 7] {
-    [
+fn extra_default_files() -> Vec<(&'static str, String)> {
+    vec![
         ("pbs.toml", pbs_defaults()),
         ("gcp gpu vm.toml", gcp_gpu_vm_defaults()),
         ("gcp gpu admin.toml", gcp_gpu_admin_defaults()),
@@ -806,7 +839,7 @@ fields = [
   { key = "remote_results", label = "Remote results", placeholder = "/data/repos/NumerixWeave/examples/fem/demos/demo_RMT/results", default = "/data/repos/NumerixWeave/examples/fem/demos/demo_RMT/results" },
   { key = "local_results",  label = "Local results",  placeholder = "results", default = "results" },
 ]
-"#
+"#.replace("{CD_REMOTE_REPO}", remote_repo)
 }
 
 fn gpu_remote_defaults() -> String {

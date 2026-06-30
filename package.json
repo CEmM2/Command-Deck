@@ -9,6 +9,10 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@fontsource-variable/fraunces": "*",
+    "@fontsource/baloo-2": "*",
+    "@fontsource/patrick-hand": "*",
+    "@fontsource/space-mono": "*",
     "@tauri-apps/api": "^2.0.0"
   },
   "devDependencies": {
