@@ -1,0 +1,85 @@
+[[template]]
+id = "containers-guide"
+kind = "guide"
+name = "Read: containers"
+desc = "Docker, Docker Compose, Singularity/Apptainer, and why HPC centers have opinions."
+guide = "containers-basics.md"
+
+[[template]]
+id = "docker-vs-compose-guide"
+kind = "guide"
+name = "Read: Docker vs Compose"
+desc = "Single container versus multi-service local app."
+guide = "docker-vs-compose.md"
+
+[[template]]
+id = "singularity-guide"
+kind = "guide"
+name = "Read: Singularity/Apptainer"
+desc = "Container workflows that are more realistic on HPC clusters."
+guide = "singularity-apptainer.md"
+
+[[template]]
+id = "docker-build"
+name = "Docker build"
+desc = "Build an image from a Dockerfile."
+guide = "containers-basics.md"
+pattern = "docker build -t {image} {path}"
+dry_run = {}
+fields = [
+  { key = "image", label = "Image", placeholder = "my-image:latest" },
+  { key = "path", label = "Build path", placeholder = ".", default = "." },
+]
+
+[[template]]
+id = "docker-run-shell"
+name = "Docker shell"
+desc = "Open an interactive shell inside a Docker image."
+guide = "containers-basics.md"
+pattern = "docker run --rm -it -v {host_path}:{container_path} {image} bash"
+dry_run = {}
+fields = [
+  { key = "host_path", label = "Host path", placeholder = "$PWD", default = "$PWD" },
+  { key = "container_path", label = "Container path", placeholder = "/work", default = "/work" },
+  { key = "image", label = "Image", placeholder = "my-image:latest" },
+]
+
+[[template]]
+id = "docker-compose-up"
+name = "Compose up"
+desc = "Start services from compose.yaml."
+guide = "docker-vs-compose.md"
+pattern = "docker compose up"
+dry_run = {}
+fields = []
+
+[[template]]
+id = "docker-compose-down"
+name = "Compose down"
+desc = "Stop services from compose.yaml."
+guide = "docker-vs-compose.md"
+pattern = "docker compose down"
+dry_run = {}
+fields = []
+
+[[template]]
+id = "singularity-shell"
+name = "Singularity shell"
+desc = "Open a shell inside a .sif image."
+guide = "singularity-apptainer.md"
+pattern = "singularity shell {image}"
+dry_run = {}
+fields = [
+  { key = "image", label = "Image", placeholder = "image.sif" },
+]
+
+[[template]]
+id = "apptainer-shell"
+name = "Apptainer shell"
+desc = "Open a shell inside a .sif image using Apptainer."
+guide = "singularity-apptainer.md"
+pattern = "apptainer shell {image}"
+dry_run = {}
+fields = [
+  { key = "image", label = "Image", placeholder = "image.sif" },
+]

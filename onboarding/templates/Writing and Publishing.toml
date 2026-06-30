@@ -1,0 +1,109 @@
+[[template]]
+id = "latex-basics-guide"
+kind = "guide"
+name = "Read: LaTeX basics"
+desc = "Why LaTeX exists, what .tex and .bib files do, and why papers are like this."
+guide = "latex-basics.md"
+
+[[template]]
+id = "overleaf-guide"
+kind = "guide"
+name = "Read: Why Overleaf"
+desc = "Why the lab uses Overleaf and when not to overcomplicate it."
+guide = "why-overleaf.md"
+
+[[template]]
+id = "overleaf-git-guide"
+kind = "guide"
+name = "Read: Overleaf + GitHub"
+desc = "Use one local folder with both GitHub and Overleaf remotes."
+guide = "overleaf-git-github-one-folder.md"
+
+[[template]]
+id = "zotero-guide"
+kind = "guide"
+name = "Read: Zotero workflow"
+desc = "References, shared libraries, BibTeX export, and not losing your sources."
+guide = "zotero-workflow.md"
+
+[[template]]
+id = "quarto-guide"
+kind = "guide"
+name = "Read: Quarto basics"
+desc = "Use Quarto for computational reports, notes, and reproducible documents."
+guide = "quarto-basics.md"
+
+[[template]]
+id = "latex-compile"
+name = "Compile LaTeX"
+desc = "Compile a LaTeX document with latexmk."
+guide = "latex-basics.md"
+pattern = "latexmk -pdf {file}"
+dry_run = {}
+fields = [
+  { key = "file", label = "Main .tex file", placeholder = "main.tex", default = "main.tex" },
+]
+
+[[template]]
+id = "latex-clean"
+name = "Clean LaTeX auxiliaries"
+desc = "Remove LaTeX build clutter."
+guide = "latex-basics.md"
+pattern = "latexmk -c {file}"
+dry_run = {}
+fields = [
+  { key = "file", label = "Main .tex file", placeholder = "main.tex", default = "main.tex" },
+]
+
+[[template]]
+id = "paper-remotes"
+name = "Show paper remotes"
+desc = "Check whether GitHub and Overleaf remotes are configured."
+guide = "overleaf-git-github-one-folder.md"
+pattern = "git remote -v"
+dry_run = {}
+fields = []
+
+[[template]]
+id = "paper-add-overleaf-remote"
+name = "Add Overleaf remote"
+desc = "Add Overleaf as a second remote."
+guide = "overleaf-git-github-one-folder.md"
+pattern = "git remote add overleaf {overleaf_git_url}"
+dry_run = {}
+fields = [
+  { key = "overleaf_git_url", label = "Overleaf Git URL", placeholder = "https://git.overleaf.com/PROJECT_ID" },
+]
+
+[[template]]
+id = "paper-pull-overleaf"
+name = "Pull from Overleaf"
+desc = "Bring Overleaf changes into the local paper folder."
+guide = "overleaf-git-github-one-folder.md"
+pattern = "git pull overleaf {branch}"
+dry_run = {}
+fields = [
+  { key = "branch", label = "Overleaf branch", placeholder = "master", default = "master" },
+]
+
+[[template]]
+id = "paper-push-github"
+name = "Push paper to GitHub"
+desc = "Push local paper changes to GitHub."
+guide = "overleaf-git-github-one-folder.md"
+pattern = "git push origin {branch}"
+dry_run = {}
+fields = [
+  { key = "branch", label = "GitHub branch", placeholder = "main", default = "main" },
+]
+
+[[template]]
+id = "quarto-render"
+name = "Render Quarto document"
+desc = "Render a .qmd document."
+guide = "quarto-basics.md"
+pattern = "quarto render {file}"
+dry_run = {}
+fields = [
+  { key = "file", label = "Quarto file", placeholder = "report.qmd" },
+]

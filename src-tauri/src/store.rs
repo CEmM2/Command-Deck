@@ -30,18 +30,30 @@ pub struct DryRun {
 pub struct Template {
     pub id: String,
     pub name: String,
+    #[serde(default = "default_template_kind")]
+    pub kind: String,
+
     #[serde(default)]
     pub desc: String,
+    
+    #[serde(default)]
     pub pattern: String,
+    
     #[serde(default)]
     pub guide: String,
+    
     #[serde(default)]
     pub fields: Vec<Field>,
+    
     #[serde(default)]
     pub dry_run: DryRun,
     /// filled in at load time from the file name; not stored in the file
     #[serde(skip)]
     pub category: String,
+}
+
+fn default_template_kind() -> String {
+    "command".into()
 }
 
 /// One TOML file = one category. `[[template]]` array of tables.

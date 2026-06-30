@@ -89,6 +89,7 @@ id = "rsync-push"
 name = "Push laptop -> remote"
 desc = "Copy a local dir up to the cluster."
 pattern = "rsync -avzP --delete {src} {host}:{dst}"
+kind = "command"                   # optional; default is command
 guide = "gcp-gpu-vm-cheatsheet.md" # optional local guide file
 dry_run = { flag = "-n" }          # injected after the program name for dry-run
 fields = [
@@ -126,6 +127,27 @@ guide = "gcp-gpu-vm-cheatsheet.md"
 When that file exists in the guides directory, the card shows a **guide** action
 button. HTML guides render in a sandboxed frame; Markdown and text guides render
 directly in the app.
+
+## Guide-only cards
+
+A guide-only card opens documentation without assembling or running a command:
+
+```toml
+[[template]]
+id = "git-basics-guide"
+kind = "guide"
+name = "Read: Git basics"
+desc = "What Git is and why we use it."
+guide = "git-basics.md"
+```
+
+Guide-only cards require `guide` and do not require `pattern`, `fields`, or `dry_run`.
+
+If `kind` is omitted, Command Deck treats the template as a normal command card:
+
+```toml
+kind = "command"
+```
 
 For this repo's current GCP notes, point the guides directory at:
 

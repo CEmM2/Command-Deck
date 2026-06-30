@@ -1,0 +1,118 @@
+[[template]]
+id = "git-basics-guide"
+kind = "guide"
+name = "Read: Git basics"
+desc = "What Git is, why we use it, and what problem it solves."
+guide = "git-basics.md"
+
+[[template]]
+id = "git-vs-gh-guide"
+kind = "guide"
+name = "Read: git vs gh"
+desc = "The difference between local Git commands and the GitHub CLI."
+guide = "git-vs-gh.md"
+
+[[template]]
+id = "github-auth-safe-guide"
+kind = "guide"
+name = "Read: safe GitHub auth"
+desc = "Authenticate without leaking PATs, secrets, or tokens through shell history or env files."
+guide = "github-auth-safe.md"
+
+[[template]]
+id = "gh-auth-status"
+name = "Check GitHub auth"
+desc = "Show whether gh is authenticated and which account is active."
+guide = "github-auth-safe.md"
+pattern = "gh auth status"
+dry_run = {}
+fields = []
+
+[[template]]
+id = "gh-auth-login-web-ssh"
+name = "GitHub login: browser + SSH"
+desc = "Start the recommended interactive GitHub CLI login flow."
+guide = "github-auth-safe.md"
+pattern = "gh auth login --web --git-protocol ssh"
+dry_run = {}
+fields = []
+
+[[template]]
+id = "git-status"
+name = "Git status"
+desc = "Show what changed, what branch you are on, and what is staged."
+guide = "git-basics.md"
+pattern = "git status --short --branch"
+dry_run = {}
+fields = []
+
+[[template]]
+id = "git-branches"
+name = "Show branches"
+desc = "List local branches and upstream tracking info."
+guide = "git-basics.md"
+pattern = "git branch -vv"
+dry_run = {}
+fields = []
+
+[[template]]
+id = "git-switch-create"
+name = "Create and switch branch"
+desc = "Create a new branch from the current branch."
+guide = "git-basics.md"
+pattern = "git switch -c {branch}"
+dry_run = {}
+fields = [
+  { key = "branch", label = "Branch name", placeholder = "feature/my-topic" },
+]
+
+[[template]]
+id = "git-pull-ff-only"
+name = "Pull safely"
+desc = "Update the current branch only if Git can fast-forward cleanly."
+guide = "git-basics.md"
+pattern = "git pull --ff-only"
+dry_run = {}
+fields = []
+
+[[template]]
+id = "git-commit"
+name = "Stage and commit"
+desc = "Stage a path and create a commit. Review with git status first."
+guide = "git-basics.md"
+pattern = "git add {path} && git commit -m \"{message}\""
+dry_run = {}
+fields = [
+  { key = "path", label = "Path", placeholder = ".", default = "." },
+  { key = "message", label = "Commit message", placeholder = "Explain the change" },
+]
+
+[[template]]
+id = "git-push-upstream"
+name = "Push current branch"
+desc = "Push the current branch and set upstream tracking."
+guide = "git-basics.md"
+pattern = "git push -u origin HEAD"
+dry_run = {}
+fields = []
+
+[[template]]
+id = "gh-pr-create-web"
+name = "Open PR form"
+desc = "Open GitHub's pull request form in the browser."
+guide = "git-basics.md"
+pattern = "gh pr create --web"
+dry_run = {}
+fields = []
+
+[[template]]
+id = "gh-repo-clone"
+name = "Clone GitHub repo"
+desc = "Clone a repository using GitHub CLI."
+guide = "git-vs-gh.md"
+pattern = "gh repo clone {owner}/{repo}"
+dry_run = {}
+fields = [
+  { key = "owner", label = "Owner", placeholder = "SOSOVSKI" },
+  { key = "repo", label = "Repo", placeholder = "command-deck" },
+]

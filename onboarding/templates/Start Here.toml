@@ -1,0 +1,29 @@
+[[template]]
+id = "onboarding-start-here"
+kind = "guide"
+name = "Read: Start here"
+desc = "Begin with the lab overview, accounts, installs, and first-week map."
+guide = "start-here.md"
+
+[[template]]
+id = "onboarding-day-zero-checklist"
+kind = "guide"
+name = "Read: Day 0 checklist"
+desc = "Accounts, SSH, GitHub, Python tools, editor, Zotero, Overleaf, Teams."
+guide = "day-zero-checklist.md"
+
+[[template]]
+id = "onboarding-lab-stack"
+kind = "guide"
+name = "Read: Common lab stack"
+desc = "The tools we use even when nobody is writing code."
+guide = "lab-stack.md"
+
+[[template]]
+id = "onboarding-install-audit"
+name = "Audit local installs"
+desc = "Check which common command-line tools are available on this machine."
+guide = "day-zero-checklist.md"
+pattern = "for x in git gh uv python mamba conda docker rg quarto gcloud; do printf '%-10s ' $x; command -v $x || true; done"
+dry_run = {}
+fields = []

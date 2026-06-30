@@ -1,0 +1,78 @@
+[[template]]
+id = "taichi-guide"
+kind = "guide"
+name = "Read: Taichi best practices"
+desc = "How to structure, debug, and profile Taichi code in the lab."
+guide = "taichi-best-practices.md"
+
+[[template]]
+id = "moose-setup-guide"
+kind = "guide"
+name = "Read: MOOSE setup"
+desc = "Set up MOOSE and understand the moving pieces."
+guide = "moose-setup.md"
+
+[[template]]
+id = "moose-development-guide"
+kind = "guide"
+name = "Read: MOOSE development"
+desc = "How to develop kernels, materials, input files, and tests in MOOSE."
+guide = "moose-development.md"
+
+[[template]]
+id = "taichi-run"
+name = "Run Taichi script"
+desc = "Run a Taichi Python script through uv."
+guide = "taichi-best-practices.md"
+pattern = "uv run python {script}"
+dry_run = {}
+fields = [
+  { key = "script", label = "Script", placeholder = "main.py" },
+]
+
+[[template]]
+id = "taichi-profile"
+name = "Run Taichi with profiler flag"
+desc = "Run a script with a conventional profiling mode argument. Adjust script support as needed."
+guide = "taichi-best-practices.md"
+pattern = "uv run python {script} --profile"
+dry_run = {}
+fields = [
+  { key = "script", label = "Script", placeholder = "main.py" },
+]
+
+[[template]]
+id = "moose-build"
+name = "Build MOOSE app"
+desc = "Build a MOOSE-based application from the app directory."
+guide = "moose-setup.md"
+pattern = "make -j {jobs}"
+dry_run = {}
+fields = [
+  { key = "jobs", label = "Parallel jobs", placeholder = "8", default = "8" },
+]
+
+[[template]]
+id = "moose-run"
+name = "Run MOOSE input"
+desc = "Run a MOOSE executable with an input file."
+guide = "moose-development.md"
+pattern = "{exe} -i {input}"
+dry_run = {}
+fields = [
+  { key = "exe", label = "Executable", placeholder = "./app-opt" },
+  { key = "input", label = "Input file", placeholder = "input.i" },
+]
+
+[[template]]
+id = "moose-run-mpi"
+name = "Run MOOSE with MPI"
+desc = "Run a MOOSE executable with mpiexec."
+guide = "moose-development.md"
+pattern = "mpiexec -n {ranks} {exe} -i {input}"
+dry_run = {}
+fields = [
+  { key = "ranks", label = "MPI ranks", placeholder = "4", default = "4" },
+  { key = "exe", label = "Executable", placeholder = "./app-opt" },
+  { key = "input", label = "Input file", placeholder = "input.i" },
+]

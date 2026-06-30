@@ -50,6 +50,20 @@ function renderTabs() {
   add.onclick = () => openModal(null);
   tabs.appendChild(add);
 }
+function templateKind(tpl) {
+  return tpl.kind || "command";
+}
+
+function isGuideOnly(tpl) {
+  return templateKind(tpl) === "guide";
+}
+
+function isCommandTemplate(tpl) {
+  return templateKind(tpl) === "command";
+}
+function isSupportedTemplateKind(tpl) {
+  return ["command", "guide"].includes(templateKind(tpl));
+}
 
 function renderGrid() {
   const grid = $("grid");
@@ -63,12 +77,79 @@ function renderGrid() {
   list.forEach((tpl) => grid.appendChild(renderCard(tpl)));
 }
 
+//Guide-only cards should not call buildCommand.
+// Guide-only cards should not read or render fields.
+// Guide-only cards should not render the command output block.
+// Guide-only cards should not expose execution actions.
+
+function renderGuideCard(tpl) {
+  const card = document.createElement("div");
+  card.className = "cd-card guide-only";
+
+  card.innerHTML = `
+    <div class="cd-card-h">
+      <h3 class="cd-card-name">
+        <span>${esc(tpl.name)}</span>
+        <small class="cd-kind-badge">guide</small>
+      </h3>
+      ${tpl.desc ? `<div class="cd-card-desc">${esc(tpl.desc)}</div>` : ""}
+    </div>
+    <div class="cd-body">
+      <div class="cd-guide-summary">
+        ${tpl.guide ? `Guide: <code>${esc(tpl.guide)}</code>` : "No guide linked."}
+      </div>
+      <div class="cd-actions">
+        ${tpl.guide ? `<button class="cd-act guide">open guide</button>` : ""}
+        <button class="cd-iconbtn edit">edit</button>
+        <button class="cd-iconbtn del">delete</button>
+      </div>
+    </div>`;
+
+  const guideBtn = card.querySelector(".guide");
+  if (guideBtn) guideBtn.onclick = () => openGuide(tpl.guide);
+
+  card.querySelector(".edit").onclick = () => openModal(tpl);
+  card.querySelector(".del").onclick = () => deleteTemplate(tpl);
+
+  return card;
+}
+
 function renderCard(tpl) {
+  if (isGuideOnly(tpl)) return renderGuideCard(tpl);
+  if (!isCommandTemplate(tpl)) return renderUnsupportedCard(tpl);
+  return renderCommandCard(tpl);
+}
+
+function renderUnsupportedCard(tpl) {
+  const card = document.createElement("div");
+  card.className = "cd-card unsupported";
+
+  card.innerHTML = `
+    <div class="cd-card-h">
+      <h3 class="cd-card-name"><span>${esc(tpl.name || tpl.id || "Unsupported card")}</span></h3>
+      <div class="cd-card-desc">
+        Unsupported template kind: <code>${esc(templateKind(tpl))}</code>
+      </div>
+    </div>
+    <div class="cd-body">
+      <div class="cd-actions">
+        <button class="cd-iconbtn edit">edit</button>
+        <button class="cd-iconbtn del">delete</button>
+      </div>
+    </div>`;
+
+  card.querySelector(".edit").onclick = () => openModal(tpl);
+  card.querySelector(".del").onclick = () => deleteTemplate(tpl);
+
+  return card;
+}
+
+function renderCommandCard(tpl) {
   const card = document.createElement("div");
   card.className = "cd-card";
   const values = {};
 
-  const dry = dryPattern(tpl);
+  const dry = isCommandTemplate(tpl) ? dryPattern(tpl) : null;
 
   card.innerHTML = `
     <div class="cd-card-h">
@@ -107,6 +188,8 @@ function renderCard(tpl) {
     fieldsWrap.appendChild(wrap);
   });
   refresh();
+
+
 
   // copy
   card.querySelector(".copy").onclick = async (e) => {
@@ -206,6 +289,7 @@ function openModal(tpl) {
   $("modal-title").textContent = tpl ? "Edit template" : "New template";
   $("m-name").value = tpl ? tpl.name : "";
   $("m-cat").value = tpl ? tpl.category : (active || "");
+  $("m-kind").value = tpl ? (tpl.kind || "command") : "command";
   $("m-desc").value = tpl ? tpl.desc : "";
   $("m-guide").value = tpl ? (tpl.guide || "") : "";
   $("m-pattern").value = tpl ? tpl.pattern : "";
@@ -214,10 +298,26 @@ function openModal(tpl) {
   categories.forEach((c) => { const o = document.createElement("option"); o.value = c.name; dl.appendChild(o); });
   const guideList = $("m-guides"); guideList.innerHTML = "";
   guides.forEach((g) => { const o = document.createElement("option"); o.value = g.name; guideList.appendChild(o); });
-  updateTokens();
+  updateModalKindState();
   $("modal").style.display = "flex";
 }
-$("m-pattern").oninput = updateTokens;
+$("m-pattern").oninput = () => {
+  if (($("m-kind").value || "command") !== "guide") updateTokens();
+};
+$("m-kind").onchange = updateModalKindState;
+function updateModalKindState() {
+  const kind = $("m-kind").value || "command";
+  const guideOnly = kind === "guide";
+
+  $("m-pattern").disabled = guideOnly;
+  $("m-dry").disabled = guideOnly;
+
+  if (guideOnly) {
+    $("m-tokens").textContent = "";
+  } else {
+    updateTokens();
+  }
+}
 function updateTokens() {
   const m = ($("m-pattern").value.match(/\{[a-zA-Z0-9_]+\}/g) || []);
   const toks = [...new Set(m.map((t) => t.slice(1, -1)))];
@@ -227,20 +327,29 @@ $("m-cancel").onclick = () => { $("modal").style.display = "none"; };
 $("m-save").onclick = async () => {
   const name = $("m-name").value.trim();
   const catName = $("m-cat").value.trim();
+  const kind = $("m-kind").value || "command";
   const pattern = $("m-pattern").value.trim();
-  if (!name || !catName || !pattern) return;
+  const guide = $("m-guide").value.trim();
+
+  if (!name || !catName) return;
+  if (kind === "command" && !pattern) return;
+  if (kind === "guide" && !guide) return;
+
   const m = (pattern.match(/\{[a-zA-Z0-9_]+\}/g) || []);
   const toks = [...new Set(m.map((t) => t.slice(1, -1)))];
   const dryFlag = $("m-dry").value.trim();
 
   const tpl = {
     id: editing || (name.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Math.random().toString(36).slice(2, 6)),
+    kind,
     name,
     desc: $("m-desc").value.trim(),
-    guide: $("m-guide").value.trim(),
-    pattern,
-    fields: toks.map((k) => ({ key: k, label: k, placeholder: "", default: "" })),
-    dry_run: dryFlag ? { flag: dryFlag } : {},
+    guide,
+    pattern: kind === "command" ? pattern : "",
+    fields: kind === "command"
+      ? toks.map((k) => ({ key: k, label: k, placeholder: "", default: "" }))
+      : [],
+    dry_run: kind === "command" && dryFlag ? { flag: dryFlag } : {},
     category: catName,
   };
 
@@ -277,8 +386,14 @@ async function deleteTemplate(tpl) {
 async function persist(catName) {
   const cat = categories.find((c) => c.name === catName);
   if (!cat) return;
-  // strip the runtime-only `category` field before saving
-  const clean = cat.templates.map(({ category, ...rest }) => rest);
+  // strip runtime-only fields; omit command-only fields for guide cards
+  const clean = cat.templates.map(({ category, ...rest }) => {
+    if ((rest.kind || "command") === "guide") {
+      const { pattern, fields, dry_run, ...guideRest } = rest;
+      return guideRest;
+    }
+    return rest;
+  });
   await invoke("save_category", { cfg, category: catName, templates: clean });
 }
 

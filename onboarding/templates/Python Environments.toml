@@ -1,0 +1,101 @@
+[[template]]
+id = "package-managers-guide"
+kind = "guide"
+name = "Read: package managers"
+desc = "What package managers are and why scientists keep inventing slightly different ones."
+guide = "package-managers.md"
+
+[[template]]
+id = "uv-basics-guide"
+kind = "guide"
+name = "Read: uv basics"
+desc = "How to use uv for Python projects, scripts, and tools."
+guide = "uv-basics.md"
+
+[[template]]
+id = "conda-mamba-guide"
+kind = "guide"
+name = "Read: conda/mamba basics"
+desc = "How conda-style environments work and why mamba/minimamba exist."
+guide = "conda-mamba-basics.md"
+
+[[template]]
+id = "uv-vs-conda-guide"
+kind = "guide"
+name = "Read: uv vs conda"
+desc = "Which environment tool to choose for the job."
+guide = "uv-vs-conda.md"
+
+[[template]]
+id = "uv-init"
+name = "Create uv project"
+desc = "Initialize a new uv-managed Python project."
+guide = "uv-basics.md"
+pattern = "uv init {name}"
+dry_run = {}
+fields = [
+  { key = "name", label = "Project name", placeholder = "my-project" },
+]
+
+[[template]]
+id = "uv-sync"
+name = "Sync uv environment"
+desc = "Install exactly what the lockfile/project specifies."
+guide = "uv-basics.md"
+pattern = "uv sync"
+dry_run = {}
+fields = []
+
+[[template]]
+id = "uv-add"
+name = "Add Python dependency"
+desc = "Add a dependency to a uv project."
+guide = "uv-basics.md"
+pattern = "uv add {package}"
+dry_run = {}
+fields = [
+  { key = "package", label = "Package", placeholder = "numpy" },
+]
+
+[[template]]
+id = "uv-run"
+name = "Run Python with uv"
+desc = "Run a script inside the uv-managed environment."
+guide = "uv-basics.md"
+pattern = "uv run python {script}"
+dry_run = {}
+fields = [
+  { key = "script", label = "Script", placeholder = "main.py" },
+]
+
+[[template]]
+id = "mamba-create"
+name = "Create mamba env"
+desc = "Create a conda-style environment."
+guide = "conda-mamba-basics.md"
+pattern = "mamba create -n {env} python={python}"
+dry_run = {}
+fields = [
+  { key = "env", label = "Environment", placeholder = "lab-env" },
+  { key = "python", label = "Python version", placeholder = "3.11", default = "3.11" },
+]
+
+[[template]]
+id = "mamba-env-list"
+name = "List conda/mamba envs"
+desc = "Show available conda-style environments."
+guide = "conda-mamba-basics.md"
+pattern = "mamba env list || conda env list"
+dry_run = {}
+fields = []
+
+[[template]]
+id = "mamba-install"
+name = "Install into active env"
+desc = "Install a package into the currently active conda/mamba environment."
+guide = "conda-mamba-basics.md"
+pattern = "mamba install {package}"
+dry_run = {}
+fields = [
+  { key = "package", label = "Package", placeholder = "numpy" },
+]

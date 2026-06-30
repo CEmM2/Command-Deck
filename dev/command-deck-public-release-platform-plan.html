@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Command Deck Public Release & Platform Plan</title>
+  <style>
+:root {
+  --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --font-display: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --radius: 8px;
+  --line-w: 2px;
+  --bg: #0d1117;
+  --bg-surface: #161b22;
+  --bg-elevated: #1c2128;
+  --bg-input: #0d1117;
+  --border: #484f58;
+  --text: #c9d1d9;
+  --text-bright: #f0f6fc;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-bg: #1f6feb22;
+  --accent-border: #1f6feb55;
+  --green: #56d364;
+  --green-bg: #23863622;
+  --green-border: #23863666;
+  --red: #f85149;
+  --red-bg: #f8514922;
+  --red-border: #f8514966;
+  --yellow: #d29922;
+  --yellow-bg: #d2992222;
+  --yellow-border: #d2992266;
+  --purple: #bc8cff;
+  --purple-bg: #8957e522;
+  --purple-border: #8957e566;
+  --pill-bg: #21262d;
+  --shadow: 3px 4px 0 #000;
+  --shadow-hover: 5px 6px 0 #000;
+  --topbar-bg: #161b22;
+  --topbar-accent: #d5a654;
+  --topbar-text: #f0f6fc;
+  --stripe: #e63b2e11;
+}
+:root[data-theme="bright"] {
+  --bg: #fff8e7;
+  --bg-surface: #ffffff;
+  --bg-elevated: #fff0cc;
+  --bg-input: #ffffff;
+  --border: #e8b84b;
+  --text: #2b2b2b;
+  --text-bright: #171717;
+  --text-muted: #6b5b3e;
+  --accent: #2b78c4;
+  --accent-bg: #2b78c422;
+  --accent-border: #2b78c466;
+  --green: #3f9f44;
+  --green-bg: #4caf5022;
+  --green-border: #4caf5066;
+  --red: #e63b2e;
+  --red-bg: #e63b2e22;
+  --red-border: #e63b2e66;
+  --yellow: #d69a00;
+  --yellow-bg: #e8b84b33;
+  --yellow-border: #e8b84b88;
+  --purple: #8f35b2;
+  --purple-bg: #9c27b022;
+  --purple-border: #9c27b055;
+  --pill-bg: #fff0cc;
+  --shadow: 3px 4px 0 #2b2b2b;
+  --shadow-hover: 5px 6px 0 #2b2b2b;
+  --topbar-bg: #ffffff;
+  --topbar-accent: #d69a00;
+  --topbar-text: #171717;
+  --stripe: #e63b2e22;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; padding: 0; background: var(--bg); font-family: var(--font-main); color: var(--text); min-height: 100vh; }
+.cd {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  background-image: repeating-linear-gradient(0deg, transparent, transparent 28px, var(--stripe) 28px, var(--stripe) 30px);
+}
+.cd-wrap { max-width: 1120px; margin: 0 auto; padding: 22px 20px 90px; }
+.cd-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  background: var(--topbar-bg); border: var(--line-w) solid var(--border);
+  border-bottom-color: var(--topbar-accent); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 14px 16px; margin-bottom: 20px; position: sticky; top: 12px; z-index: 10;
+}
+.cd-brand { display: flex; align-items: center; gap: 15px; min-width: 0; }
+.cd-brand-icon {
+  width: 72px; height: 72px; flex: 0 0 auto; display: grid; place-items: center;
+  border: var(--line-w) solid color-mix(in srgb, var(--topbar-accent) 62%, var(--border));
+  border-radius: var(--radius); background: var(--bg-elevated);
+  box-shadow: 2px 3px 0 color-mix(in srgb, var(--topbar-accent) 45%, #000);
+  font-family: var(--font-mono); font-weight: 800; color: var(--topbar-accent);
+}
+.cd-title { font-family: var(--font-display); font-size: 34px; font-weight: 800; margin: 0; line-height: 1; color: var(--topbar-text); }
+.cd-title em { color: var(--yellow); font-style: normal; }
+.cd-sub { color: color-mix(in srgb, var(--topbar-text) 72%, transparent); font-size: 13px; font-weight: 500; margin-top: 6px; max-width: 760px; line-height: 1.4; }
+.doc-meta { color: var(--text-muted); font-family: var(--font-mono); font-size: 12px; margin-top: 12px; }
+.cd-head-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.cd-head-btn {
+  font-family: var(--font-main); font-size: 13px; font-weight: 700; border-radius: var(--radius);
+  cursor: pointer; border: var(--line-w) solid var(--border); background: var(--bg-surface);
+  color: var(--text); box-shadow: var(--shadow); min-height: 38px; padding: 6px 16px;
+}
+.cd-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.cd-tab {
+  font-family: var(--font-main); font-size: 13px; font-weight: 700; background: var(--pill-bg);
+  color: var(--text-muted); border: var(--line-w) solid var(--border); padding: 7px 15px;
+  border-radius: var(--radius); cursor: pointer; transition: all .15s; text-decoration: none;
+}
+.cd-tab:hover { color: var(--text-bright); border-color: var(--accent); transform: translateY(-1px); }
+.cd-grid { display: grid; gap: 18px; }
+.cd-card {
+  background: var(--bg-surface); border: var(--line-w) solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); overflow: hidden; transition: transform .15s, border-color .15s, box-shadow .15s; scroll-margin-top: 120px;
+}
+.cd-card:hover { border-color: var(--accent); box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+.cd-card:nth-child(odd) { border-color: var(--red-border); }
+.cd-card:nth-child(even) { border-color: var(--accent-border); }
+.cd-card:nth-child(3n) { border-color: var(--yellow-border); }
+.cd-card-h { padding: 15px 18px 12px; border-bottom: var(--line-w) solid var(--border); background: var(--bg-elevated); }
+.cd-card-name {
+  font-family: var(--font-display); font-size: 22px; font-weight: 800; margin: 0; color: var(--text-bright);
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.cd-card-desc { color: var(--text-muted); font-size: 13px; line-height: 1.45; margin-top: 5px; font-weight: 500; }
+.cd-body { padding: 16px 18px 18px; }
+.doc-body h1, .doc-body h2, .doc-body h3, .doc-body h4 { font-family: var(--font-display); color: var(--text-bright); line-height: 1.2; margin: 1.4em 0 .5em; }
+.doc-body h1 { font-size: 28px; margin-top: 0; padding-bottom: .35em; border-bottom: 1px solid var(--border); }
+.doc-body h2 { font-size: 23px; padding-top: .7em; border-top: 1px solid var(--border); }
+.doc-body h3 { font-size: 18px; }
+.doc-body p, .doc-body li { line-height: 1.62; font-size: 15px; }
+.doc-body a { color: var(--accent); }
+.doc-body code {
+  font-family: var(--font-mono); background: var(--bg-input); border: 1px solid var(--border);
+  color: var(--green); padding: .12em .34em; border-radius: 4px; font-size: .92em;
+}
+.code-wrap {
+  position: relative; background: var(--bg-input); border: var(--line-w) solid var(--green-border);
+  border-left-width: 5px; border-radius: var(--radius); margin: 14px 0; overflow: hidden;
+}
+.code-lang { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); border-bottom: 1px solid var(--border); padding: 6px 10px; background: var(--bg-elevated); }
+pre { margin: 0; padding: 13px 14px; overflow: auto; white-space: pre; }
+pre code { border: 0 !important; padding: 0 !important; color: var(--green) !important; background: transparent !important; font-family: var(--font-mono); font-size: 13px; line-height: 1.5; }
+.cd-badge { font-size: 10px; color: var(--green); border: 1px solid var(--green-border); border-radius: var(--radius); padding: 1px 6px; text-transform: uppercase; letter-spacing: .4px; font-weight: 800; }
+table { border-collapse: collapse; width: 100%; margin: 14px 0; border: var(--line-w) solid var(--border); background: var(--bg-input); overflow: hidden; border-radius: var(--radius); }
+td, th { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
+tr:first-child td { color: var(--text-bright); font-weight: 800; background: var(--bg-elevated); }
+.callout { border: var(--line-w) solid var(--yellow-border); background: var(--yellow-bg); color: var(--text-bright); padding: 12px 14px; border-radius: var(--radius); margin-bottom: 20px; font-size: 14px; line-height: 1.5; }
+.top-link { position: fixed; right: 18px; bottom: 18px; z-index: 20; text-decoration: none; padding: 9px 13px; border-radius: var(--radius); border: var(--line-w) solid var(--accent-border); background: var(--accent-bg); color: var(--accent); font-weight: 800; box-shadow: var(--shadow); }
+@media (max-width: 760px) {
+  .cd-wrap { padding: 14px 12px 80px; }
+  .cd-head { align-items: flex-start; flex-direction: column; position: static; }
+  .cd-brand { align-items: center; width: 100%; }
+  .cd-title { font-size: 30px; }
+  .cd-brand-icon { width: 58px; height: 58px; }
+  .cd-card-name { font-size: 20px; align-items: flex-start; }
+  pre code { font-size: 12px; }
+}
+@media print {
+  .cd-head, .cd-tabs, .top-link { position: static; box-shadow: none; }
+  .cd-card { break-inside: avoid; box-shadow: none; }
+  body, .cd { background: white; color: black; }
+}
+</style>
+</head>
+<body>
+  <div class="cd" id="top">
+    <div class="cd-wrap">
+      <header class="cd-head">
+        <div class="cd-brand">
+          <div class="cd-brand-icon">CD</div>
+          <div>
+            <h1 class="cd-title">Command <em>Deck</em></h1>
+            <div class="cd-sub">public release, guide-only cards, themes, bundled fonts, Linux support, and Windows copy-only mode</div>
+            <div class="doc-meta">Standalone HTML · no external fonts · self-contained planning document</div>
+          </div>
+        </div>
+        <div class="cd-head-actions">
+          <button class="cd-head-btn" onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'bright' ? 'dark' : 'bright'">toggle theme</button>
+        </div>
+      </header>
+      <div class="callout">
+        This document uses system fonts instead of pulling from Google Fonts. It mimics the Command Deck token theme and includes all requested plans in one file, because documentation should not require five tabs and a small act of archaeology.
+      </div>
+      <nav class="cd-tabs"><a class="cd-tab" href="#guide-only">Guide-only cards plan</a>
+<a class="cd-tab" href="#theme-fonts">Theme and bundled fonts</a>
+<a class="cd-tab" href="#public-release">Public release audit</a>
+<a class="cd-tab" href="#linux-support">Linux support</a>
+<a class="cd-tab" href="#windows-copy-only">Windows degraded mode</a></nav>
+      <main class="cd-grid">
+<section class="cd-card doc-section" id="guide-only">
+  <div class="cd-card-h">
+    <h2 class="cd-card-name"><span>Guide-only cards plan</span><span class="cd-badge">plan</span></h2>
+    <div class="cd-card-desc">From the earlier Markdown plan, embedded here so the HTML is self-contained.</div>
+  </div>
+  <div class="cd-body doc-body">
+    <h1 id="plan-add-guide-only-cards-to-command-deck">Plan: Add Guide-Only Cards to Command Deck</h1>
+<h2 id="goal">Goal</h2>
+<p>Add a new template/card type for documentation-only cards.</p>
+<p>Current workaround:</p>
+<div class="code-wrap"><div class="code-lang">toml</div><pre><code>[[template]]
+id = &quot;git-basics-guide&quot;
+name = &quot;Read: Git basics&quot;
+desc = &quot;What Git is, why we use it, and what problem it solves.&quot;
+guide = &quot;git-basics.md&quot;
+pattern = &quot;echo &#x27;Open the guide: git-basics.md&#x27;&quot;
+dry_run = {}
+fields = []</code></pre></div>
+<p>Target design:</p>
+<div class="code-wrap"><div class="code-lang">toml</div><pre><code>[[template]]
+id = &quot;git-basics-guide&quot;
+kind = &quot;guide&quot;
+name = &quot;Read: Git basics&quot;
+desc = &quot;What Git is, why we use it, and what problem it solves.&quot;
+guide = &quot;git-basics.md&quot;</code></pre></div>
+<p>Guide-only cards should render with only:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>open guide
+edit
+delete</code></pre></div>
+<p>They should not show command preview, copy, dry-run, execute-in-app, or execute-in-terminal buttons.</p>
+<p>---</p>
+<h2 id="why-this-is-needed">Why this is needed</h2>
+<p>The onboarding content contains many cards whose purpose is to open documentation rather than run commands.</p>
+<p>The current <code>echo</code> workaround works, but it is not ideal because:</p>
+<ul>
+<li>it shows command-related actions for guide-only content;</li>
+<li>it makes the TOML noisier;</li>
+<li>it creates fake commands;</li>
+<li>it teaches the wrong mental model;</li>
+<li>it makes the interface look more dangerous than it is.</li>
+</ul>
+<p>Guide-only cards are a small app-level improvement that make onboarding content feel intentional instead of improvised under fluorescent lighting.</p>
+<p>---</p>
+<h2 id="scope">Scope</h2>
+<h3 id="in-scope">In scope</h3>
+<ul>
+<li>Add <code>kind = &quot;guide&quot;</code> support to templates.</li>
+<li>Keep existing command templates backward-compatible.</li>
+<li>Render guide-only cards differently in the UI.</li>
+<li>Allow hand-written TOML guide cards to work.</li>
+<li>Optionally update the add/edit modal to create guide-only cards.</li>
+<li>Convert onboarding TOML files from fake <code>echo</code> cards to real guide-only cards.</li>
+</ul>
+<h3 id="out-of-scope">Out of scope</h3>
+<ul>
+<li>Full onboarding progress tracking.</li>
+<li>Search across all guides.</li>
+<li>Guide tagging.</li>
+<li>Auto-seeding the onboarding pack.</li>
+<li>User completion state.</li>
+<li>Remote guide hosting.</li>
+</ul>
+<p>Those are useful later. They are not needed for the first clean implementation.</p>
+<p>---</p>
+<h2 id="data-model-change">Data model change</h2>
+<p>File:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>src-tauri/src/store.rs</code></pre></div>
+<p>Current <code>Template</code> assumes a command-oriented card.</p>
+<p>Add a <code>kind</code> field and make <code>pattern</code> default to an empty string.</p>
+<div class="code-wrap"><div class="code-lang">rust</div><pre><code>#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Template {
+    pub id: String,
+    pub name: String,
+
+    #[serde(default = &quot;default_template_kind&quot;)]
+    pub kind: String,
+
+    #[serde(default)]
+    pub desc: String,
+
+    #[serde(default)]
+    pub pattern: String,
+
+    #[serde(default)]
+    pub guide: String,
+
+    #[serde(default)]
+    pub fields: Vec&lt;Field&gt;,
+
+    #[serde(default)]
+    pub dry_run: DryRun,
+
+    /// filled in at load time from the file name; not stored in the file
+    #[serde(skip)]
+    pub category: String,
+}
+
+fn default_template_kind() -&gt; String {
+    &quot;command&quot;.into()
+}</code></pre></div>
+<h3 id="why-use-a-string-instead-of-an-enum">Why use a string instead of an enum?</h3>
+<p>A Rust enum would be cleaner, but a string is more forgiving for user-edited TOML.</p>
+<p>Recommended valid values:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>command
+guide</code></pre></div>
+<p>Unknown values can be handled in the frontend with an unsupported-card warning.</p>
+<p>---</p>
+<h2 id="backward-compatibility">Backward compatibility</h2>
+<p>Existing templates do not need to change.</p>
+<p>If <code>kind</code> is missing, treat the template as:</p>
+<div class="code-wrap"><div class="code-lang">toml</div><pre><code>kind = &quot;command&quot;</code></pre></div>
+<p>Existing command cards remain valid:</p>
+<div class="code-wrap"><div class="code-lang">toml</div><pre><code>[[template]]
+id = &quot;git-status&quot;
+name = &quot;Git status&quot;
+pattern = &quot;git status --short --branch&quot;
+dry_run = {}
+fields = []</code></pre></div>
+<p>Equivalent internal meaning:</p>
+<div class="code-wrap"><div class="code-lang">toml</div><pre><code>[[template]]
+id = &quot;git-status&quot;
+kind = &quot;command&quot;
+name = &quot;Git status&quot;
+pattern = &quot;git status --short --branch&quot;
+dry_run = {}
+fields = []</code></pre></div>
+<p>This avoids breaking existing user template directories.</p>
+<p>---</p>
+<h2 id="template-behavior-rules">Template behavior rules</h2>
+<table>
+<tr><td>Kind</td><td>Required fields</td><td>Optional fields</td><td>UI behavior</td></tr>
+<tr><td><code>command</code></td><td><code>id</code>, <code>name</code>, <code>pattern</code></td><td><code>desc</code>, <code>guide</code>, <code>fields</code>, <code>dry_run</code></td><td>Show command preview and command actions</td></tr>
+<tr><td><code>guide</code></td><td><code>id</code>, <code>name</code>, <code>guide</code></td><td><code>desc</code></td><td>Show only guide action plus edit/delete</td></tr>
+</table>
+<h3 id="command-card">Command card</h3>
+<p>Example:</p>
+<div class="code-wrap"><div class="code-lang">toml</div><pre><code>[[template]]
+id = &quot;git-status&quot;
+kind = &quot;command&quot;
+name = &quot;Git status&quot;
+desc = &quot;Show repository status.&quot;
+guide = &quot;git-basics.md&quot;
+pattern = &quot;git status --short --branch&quot;
+dry_run = {}
+fields = []</code></pre></div>
+<p>Shows:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>copy
+dry-run
+execute ▸ app
+execute ▸ terminal
+guide
+edit
+delete</code></pre></div>
+<h3 id="guide-only-card">Guide-only card</h3>
+<p>Example:</p>
+<div class="code-wrap"><div class="code-lang">toml</div><pre><code>[[template]]
+id = &quot;git-basics-guide&quot;
+kind = &quot;guide&quot;
+name = &quot;Read: Git basics&quot;
+desc = &quot;What Git is and why we use it.&quot;
+guide = &quot;git-basics.md&quot;</code></pre></div>
+<p>Shows:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>open guide
+edit
+delete</code></pre></div>
+<p>---</p>
+<h2 id="frontend-helper-functions">Frontend helper functions</h2>
+<p>File:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>src/main.js</code></pre></div>
+<p>Add helpers near the rendering utilities:</p>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>function templateKind(tpl) {
+  return tpl.kind || &quot;command&quot;;
+}
+
+function isGuideOnly(tpl) {
+  return templateKind(tpl) === &quot;guide&quot;;
+}
+
+function isCommandTemplate(tpl) {
+  return templateKind(tpl) === &quot;command&quot;;
+}</code></pre></div>
+<p>Optional unsupported check:</p>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>function isSupportedTemplateKind(tpl) {
+  return [&quot;command&quot;, &quot;guide&quot;].includes(templateKind(tpl));
+}</code></pre></div>
+<p>---</p>
+<h2 id="rendering-change">Rendering change</h2>
+<p>File:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>src/main.js</code></pre></div>
+<p>Current <code>renderCard(tpl)</code> assumes every template is command-based.</p>
+<p>Modify <code>renderCard</code> so it branches early:</p>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>function renderCard(tpl) {
+  if (isGuideOnly(tpl)) return renderGuideCard(tpl);
+  if (!isCommandTemplate(tpl)) return renderUnsupportedCard(tpl);
+  return renderCommandCard(tpl);
+}</code></pre></div>
+<p>The existing <code>renderCard</code> body can mostly become <code>renderCommandCard</code>.</p>
+<p>This avoids threading guide-only conditionals through all command behavior.</p>
+<p>---</p>
+<h2 id="guide-card-renderer">Guide card renderer</h2>
+<p>Add:</p>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>function renderGuideCard(tpl) {
+  const card = document.createElement(&quot;div&quot;);
+  card.className = &quot;cd-card guide-only&quot;;
+
+  card.innerHTML = `
+    &lt;div class=&quot;cd-card-h&quot;&gt;
+      &lt;h3 class=&quot;cd-card-name&quot;&gt;
+        &lt;span&gt;${esc(tpl.name)}&lt;/span&gt;
+        &lt;small class=&quot;cd-kind-badge&quot;&gt;guide&lt;/small&gt;
+      &lt;/h3&gt;
+      ${tpl.desc ? `&lt;div class=&quot;cd-card-desc&quot;&gt;${esc(tpl.desc)}&lt;/div&gt;` : &quot;&quot;}
+    &lt;/div&gt;
+    &lt;div class=&quot;cd-body&quot;&gt;
+      &lt;div class=&quot;cd-guide-summary&quot;&gt;
+        ${tpl.guide ? `Guide: &lt;code&gt;${esc(tpl.guide)}&lt;/code&gt;` : &quot;No guide linked.&quot;}
+      &lt;/div&gt;
+      &lt;div class=&quot;cd-actions&quot;&gt;
+        ${tpl.guide ? `&lt;button class=&quot;cd-act guide&quot;&gt;open guide&lt;/button&gt;` : &quot;&quot;}
+        &lt;button class=&quot;cd-iconbtn edit&quot;&gt;edit&lt;/button&gt;
+        &lt;button class=&quot;cd-iconbtn del&quot;&gt;delete&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;`;
+
+  const guideBtn = card.querySelector(&quot;.guide&quot;);
+  if (guideBtn) guideBtn.onclick = () =&gt; openGuide(tpl.guide);
+
+  card.querySelector(&quot;.edit&quot;).onclick = () =&gt; openModal(tpl);
+  card.querySelector(&quot;.del&quot;).onclick = () =&gt; deleteTemplate(tpl);
+
+  return card;
+}</code></pre></div>
+<h3 id="notes">Notes</h3>
+<ul>
+<li>Guide-only cards should not call <code>buildCommand</code>.</li>
+<li>Guide-only cards should not read or render <code>fields</code>.</li>
+<li>Guide-only cards should not render the command output block.</li>
+<li>Guide-only cards should not expose execution actions.</li>
+</ul>
+<p>---</p>
+<h2 id="command-card-renderer">Command card renderer</h2>
+<p>Rename the old <code>renderCard(tpl)</code> implementation to:</p>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>function renderCommandCard(tpl) {
+  // existing command-card logic
+}</code></pre></div>
+<p>Keep the existing behavior:</p>
+<ul>
+<li>render fields;</li>
+<li>assemble command;</li>
+<li>show command preview;</li>
+<li>copy command;</li>
+<li>dry-run;</li>
+<li>execute in app;</li>
+<li>execute in terminal;</li>
+<li>open guide if linked;</li>
+<li>edit;</li>
+<li>delete.</li>
+</ul>
+<p>Only minor adjustment needed:</p>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>const dry = dryPattern(tpl);</code></pre></div>
+<p>should only run for command cards.</p>
+<p>---</p>
+<h2 id="unsupported-card-renderer">Unsupported card renderer</h2>
+<p>Optional but useful.</p>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>function renderUnsupportedCard(tpl) {
+  const card = document.createElement(&quot;div&quot;);
+  card.className = &quot;cd-card unsupported&quot;;
+
+  card.innerHTML = `
+    &lt;div class=&quot;cd-card-h&quot;&gt;
+      &lt;h3 class=&quot;cd-card-name&quot;&gt;&lt;span&gt;${esc(tpl.name || tpl.id || &quot;Unsupported card&quot;)}&lt;/span&gt;&lt;/h3&gt;
+      &lt;div class=&quot;cd-card-desc&quot;&gt;
+        Unsupported template kind: &lt;code&gt;${esc(templateKind(tpl))}&lt;/code&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;cd-body&quot;&gt;
+      &lt;div class=&quot;cd-actions&quot;&gt;
+        &lt;button class=&quot;cd-iconbtn edit&quot;&gt;edit&lt;/button&gt;
+        &lt;button class=&quot;cd-iconbtn del&quot;&gt;delete&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;`;
+
+  card.querySelector(&quot;.edit&quot;).onclick = () =&gt; openModal(tpl);
+  card.querySelector(&quot;.del&quot;).onclick = () =&gt; deleteTemplate(tpl);
+
+  return card;
+}</code></pre></div>
+<p>This makes typos obvious.</p>
+<p>A typo like:</p>
+<div class="code-wrap"><div class="code-lang">toml</div><pre><code>kind = &quot;guid&quot;</code></pre></div>
+<p>should not silently behave like a command. Silent fallbacks are how bugs rent apartments.</p>
+<p>---</p>
+<h2 id="modal-editor-changes">Modal editor changes</h2>
+<p>Files:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>src/index.html
+src/main.js
+src/styles.css</code></pre></div>
+<p>The modal currently assumes a command template and requires <code>pattern</code>.</p>
+<h3 id="add-type-selector">Add type selector</h3>
+<p>In <code>src/index.html</code>, add a field:</p>
+<div class="code-wrap"><div class="code-lang">html</div><pre><code>&lt;label&gt;
+  Type
+  &lt;select id=&quot;m-kind&quot;&gt;
+    &lt;option value=&quot;command&quot;&gt;Command&lt;/option&gt;
+    &lt;option value=&quot;guide&quot;&gt;Guide only&lt;/option&gt;
+  &lt;/select&gt;
+&lt;/label&gt;</code></pre></div>
+<p>Place it near the template name/category fields.</p>
+<h3 id="load-kind-in-modal">Load kind in modal</h3>
+<p>In <code>openModal(tpl)</code>:</p>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>$(&quot;m-kind&quot;).value = tpl ? (tpl.kind || &quot;command&quot;) : &quot;command&quot;;</code></pre></div>
+<h3 id="update-validation">Update validation</h3>
+<p>Current logic:</p>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>if (!name || !catName || !pattern) return;</code></pre></div>
+<p>Replace with:</p>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>const kind = $(&quot;m-kind&quot;).value || &quot;command&quot;;
+const pattern = $(&quot;m-pattern&quot;).value.trim();
+const guide = $(&quot;m-guide&quot;).value.trim();
+
+if (!name || !catName) return;
+if (kind === &quot;command&quot; &amp;&amp; !pattern) return;
+if (kind === &quot;guide&quot; &amp;&amp; !guide) return;</code></pre></div>
+<h3 id="construct-template-by-kind">Construct template by kind</h3>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>const tpl = {
+  id: editing || (name.toLowerCase().replace(/[^a-z0-9]+/g, &quot;-&quot;) + &quot;-&quot; + Math.random().toString(36).slice(2, 6)),
+  kind,
+  name,
+  desc: $(&quot;m-desc&quot;).value.trim(),
+  guide,
+  pattern: kind === &quot;command&quot; ? pattern : &quot;&quot;,
+  fields: kind === &quot;command&quot;
+    ? toks.map((k) =&gt; ({ key: k, label: k, placeholder: &quot;&quot;, default: &quot;&quot; }))
+    : [],
+  dry_run: kind === &quot;command&quot; &amp;&amp; dryFlag ? { flag: dryFlag } : {},
+  category: catName,
+};</code></pre></div>
+<h3 id="disable-command-specific-fields-for-guide-only-mode">Disable command-specific fields for guide-only mode</h3>
+<p>Add:</p>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>function updateModalKindState() {
+  const kind = $(&quot;m-kind&quot;).value || &quot;command&quot;;
+  const guideOnly = kind === &quot;guide&quot;;
+
+  $(&quot;m-pattern&quot;).disabled = guideOnly;
+  $(&quot;m-dry&quot;).disabled = guideOnly;
+
+  if (guideOnly) {
+    $(&quot;m-tokens&quot;).textContent = &quot;&quot;;
+  } else {
+    updateTokens();
+  }
+}</code></pre></div>
+<p>Wire it:</p>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>$(&quot;m-kind&quot;).onchange = updateModalKindState;</code></pre></div>
+<p>Call it inside <code>openModal(tpl)</code> after setting values:</p>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>updateModalKindState();</code></pre></div>
+<p>Also adjust:</p>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>$(&quot;m-pattern&quot;).oninput = updateTokens;</code></pre></div>
+<p>to avoid updating tokens when guide-only mode is active:</p>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>$(&quot;m-pattern&quot;).oninput = () =&gt; {
+  if (($(&quot;m-kind&quot;).value || &quot;command&quot;) !== &quot;guide&quot;) updateTokens();
+};</code></pre></div>
+<p>---</p>
+<h2 id="persisting-guide-only-cards">Persisting guide-only cards</h2>
+<p>The existing <code>persist(catName)</code> function strips only the runtime <code>category</code> field:</p>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>const clean = cat.templates.map(({ category, ...rest }) =&gt; rest);</code></pre></div>
+<p>This should continue to work.</p>
+<p>Guide-only cards will save as:</p>
+<div class="code-wrap"><div class="code-lang">toml</div><pre><code>[[template]]
+id = &quot;git-basics-guide&quot;
+name = &quot;Read: Git basics&quot;
+kind = &quot;guide&quot;
+desc = &quot;What Git is and why we use it.&quot;
+guide = &quot;git-basics.md&quot;
+pattern = &quot;&quot;
+fields = []
+dry_run = {}</code></pre></div>
+<p>That is acceptable but noisier than ideal.</p>
+<h3 id="optional-cleaner-persistence">Optional cleaner persistence</h3>
+<p>Later, omit command-only fields for guide cards before saving:</p>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>const clean = cat.templates.map(({ category, ...rest }) =&gt; {
+  if ((rest.kind || &quot;command&quot;) === &quot;guide&quot;) {
+    const { pattern, fields, dry_run, ...guideRest } = rest;
+    return guideRest;
+  }
+  return rest;
+});</code></pre></div>
+<p>This produces cleaner TOML.</p>
+<p>Recommended, but not required.</p>
+<p>---</p>
+<h2 id="styling">Styling</h2>
+<p>File:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>src/styles.css</code></pre></div>
+<p>Add simple styles:</p>
+<div class="code-wrap"><div class="code-lang">css</div><pre><code>.cd-card.guide-only {
+  opacity: 0.98;
+}
+
+.cd-guide-summary {
+  font-size: 0.95rem;
+  opacity: 0.85;
+  margin-bottom: 0.75rem;
+}
+
+.cd-kind-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  opacity: 0.75;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+.cd-card.unsupported {
+  outline: 2px dashed currentColor;
+}</code></pre></div>
+<p>Keep styling modest. This is a guide card, not a nightclub flyer.</p>
+<p>---</p>
+<h2 id="readme-update">README update</h2>
+<p>File:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>README.md</code></pre></div>
+<p>Add a section:</p>
+<div class="code-wrap"><div class="code-lang">`md</div><pre><code>## Guide-only cards
+
+A guide-only card opens documentation without assembling or running a command:
+</code></pre></div>
+<p>[[template]] id = &quot;git-basics-guide&quot; kind = &quot;guide&quot; name = &quot;Read: Git basics&quot; desc = &quot;What Git is and why we use it.&quot; guide = &quot;git-basics.md&quot;</p>
+<div class="code-wrap"><pre><code>
+Guide-only cards require `guide` and do not require `pattern`, `fields`, or `dry_run`.
+
+If `kind` is omitted, Command Deck treats the template as a normal command card:
+</code></pre></div>
+<p>kind = &quot;command&quot;</p>
+<div class="code-wrap"><pre><code></code></pre></div>
+<p>Also update the existing template example to include:</p>
+<div class="code-wrap"><div class="code-lang">toml</div><pre><code>kind = &quot;command&quot; # optional; default is command</code></pre></div>
+<p>---</p>
+<h2 id="convert-onboarding-toml">Convert onboarding TOML</h2>
+<p>After the app supports guide-only cards, convert fake guide cards.</p>
+<p>Before:</p>
+<div class="code-wrap"><div class="code-lang">toml</div><pre><code>[[template]]
+id = &quot;uv-vs-conda-guide&quot;
+name = &quot;Read: uv vs conda&quot;
+desc = &quot;Which environment tool to choose for the job.&quot;
+guide = &quot;uv-vs-conda.md&quot;
+pattern = &quot;echo &#x27;Open the guide: uv-vs-conda.md&#x27;&quot;
+dry_run = {}
+fields = []</code></pre></div>
+<p>After:</p>
+<div class="code-wrap"><div class="code-lang">toml</div><pre><code>[[template]]
+id = &quot;uv-vs-conda-guide&quot;
+kind = &quot;guide&quot;
+name = &quot;Read: uv vs conda&quot;
+desc = &quot;Which environment tool to choose for the job.&quot;
+guide = &quot;uv-vs-conda.md&quot;</code></pre></div>
+<p>This makes the onboarding files shorter, clearer, and less fake.</p>
+<p>---</p>
+<h2 id="testing-checklist">Testing checklist</h2>
+<h3 id="existing-command-cards">Existing command cards</h3>
+<ul>
+<li>Existing seeded templates load without changes.</li>
+<li>Existing command cards still show command preview.</li>
+<li>Copy still copies assembled command.</li>
+<li>Dry-run still works.</li>
+<li>Execute in app still works.</li>
+<li>Execute in terminal still works.</li>
+<li>Guide button still opens linked guide.</li>
+</ul>
+<h3 id="guide-only-cards">Guide-only cards</h3>
+<p>Create a TOML file:</p>
+<div class="code-wrap"><div class="code-lang">toml</div><pre><code>[[template]]
+id = &quot;test-guide-card&quot;
+kind = &quot;guide&quot;
+name = &quot;Read: Test guide&quot;
+desc = &quot;A guide-only card.&quot;
+guide = &quot;test-guide.md&quot;</code></pre></div>
+<p>Create:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>test-guide.md</code></pre></div>
+<p>Expected behavior:</p>
+<ul>
+<li>Card appears in the tab.</li>
+<li>No command preview appears.</li>
+<li>No copy button appears.</li>
+<li>No dry-run button appears.</li>
+<li>No execute buttons appear.</li>
+<li><code>open guide</code> opens the guide.</li>
+<li>Edit works.</li>
+<li>Delete works.</li>
+</ul>
+<h3 id="modal">Modal</h3>
+<ul>
+<li>New command card requires <code>pattern</code>.</li>
+<li>New guide card requires <code>guide</code>.</li>
+<li>Guide mode disables or ignores pattern/dry-run fields.</li>
+<li>Editing an existing command card keeps it as command.</li>
+<li>Editing an existing guide card keeps it as guide.</li>
+</ul>
+<h3 id="persistence">Persistence</h3>
+<ul>
+<li>Saving a command card keeps command fields.</li>
+<li>Saving a guide card does not create broken command behavior.</li>
+<li>Reloading the app preserves <code>kind = &quot;guide&quot;</code>.</li>
+</ul>
+<h3 id="bad-input">Bad input</h3>
+<p>Test typo:</p>
+<div class="code-wrap"><div class="code-lang">toml</div><pre><code>kind = &quot;guid&quot;</code></pre></div>
+<p>Expected:</p>
+<ul>
+<li>Card renders as unsupported, or at least does not run commands.</li>
+<li>User can edit/delete it.</li>
+</ul>
+<p>---</p>
+<h2 id="suggested-pr-breakdown">Suggested PR breakdown</h2>
+<h3 id="pr-1-schema-and-docs">PR 1: Schema and docs</h3>
+<p>Files:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>src-tauri/src/store.rs
+README.md</code></pre></div>
+<p>Changes:</p>
+<ul>
+<li>Add <code>kind</code>.</li>
+<li>Default <code>kind</code> to <code>command</code>.</li>
+<li>Make <code>pattern</code> default to empty string.</li>
+<li>Document guide-only cards.</li>
+</ul>
+<h3 id="pr-2-rendering">PR 2: Rendering</h3>
+<p>Files:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>src/main.js
+src/styles.css</code></pre></div>
+<p>Changes:</p>
+<ul>
+<li>Split <code>renderCard</code> into guide/command/unsupported renderers.</li>
+<li>Add guide-only UI.</li>
+<li>Add small styling.</li>
+</ul>
+<h3 id="pr-3-modal-editor">PR 3: Modal editor</h3>
+<p>Files:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>src/index.html
+src/main.js
+src/styles.css</code></pre></div>
+<p>Changes:</p>
+<ul>
+<li>Add type selector.</li>
+<li>Add kind-based validation.</li>
+<li>Disable command fields for guide cards.</li>
+</ul>
+<h3 id="pr-4-onboarding-cleanup">PR 4: Onboarding cleanup</h3>
+<p>Files:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>onboarding/templates/*.toml</code></pre></div>
+<p>Changes:</p>
+<ul>
+<li>Replace fake <code>echo</code> guide cards with <code>kind = &quot;guide&quot;</code>.</li>
+</ul>
+<p>---</p>
+<h2 id="minimal-implementation-path">Minimal implementation path</h2>
+<p>The fastest useful version is:</p>
+<ol>
+<li>Add <code>kind</code> to Rust <code>Template</code>.</li>
+<li>Make <code>pattern</code> default to empty.</li>
+<li>Add frontend <code>isGuideOnly</code>.</li>
+<li>Render guide cards without command buttons.</li>
+<li>Leave modal support for later.</li>
+</ol>
+<p>That lets hand-written TOML support guide-only cards immediately.</p>
+<p>Minimal supported TOML:</p>
+<div class="code-wrap"><div class="code-lang">toml</div><pre><code>[[template]]
+id = &quot;git-basics-guide&quot;
+kind = &quot;guide&quot;
+name = &quot;Read: Git basics&quot;
+desc = &quot;What Git is and why we use it.&quot;
+guide = &quot;git-basics.md&quot;</code></pre></div>
+<p>This is the best first cut: small, backward-compatible, and directly useful for onboarding.</p>
+  </div>
+</section>
+
+
+<section class="cd-card doc-section" id="theme-fonts">
+  <div class="cd-card-h">
+    <h2 class="cd-card-name"><span>Theme and bundled fonts</span><span class="cd-badge">plan</span></h2>
+    <div class="cd-card-desc">How to change themes and remove the Google Fonts dependency.</div>
+  </div>
+  <div class="cd-body doc-body">
+    <h1 id="theme-and-bundled-font-instructions">Theme and bundled-font instructions</h1>
+<h2 id="existing-theme-model">Existing theme model</h2>
+<p>Command Deck already uses a CSS-variable theme model.</p>
+<p>The current design has:</p>
+<ul>
+<li>a default dark theme under <code>:root</code>;</li>
+<li>a bright theme under <code>:root[data-theme=&quot;bright&quot;]</code>;</li>
+<li>a settings dropdown that chooses between <code>dark</code> and <code>bright</code>;</li>
+<li>JavaScript that sets <code>document.documentElement.dataset.theme</code>.</li>
+</ul>
+<p>This means simple color changes are mostly CSS-only. Adding a new selectable theme touches CSS, HTML, and JavaScript.</p>
+<h2 id="change-existing-dark-bright-theme">Change existing dark/bright theme</h2>
+<p>Edit:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>src/styles.css</code></pre></div>
+<p>Change variables in:</p>
+<div class="code-wrap"><div class="code-lang">css</div><pre><code>:root {
+  --bg: #0d1117;
+  --bg-surface: #161b22;
+  --text: #c9d1d9;
+  --accent: #58a6ff;
+}
+
+:root[data-theme=&quot;bright&quot;] {
+  --bg: #fff8e7;
+  --bg-surface: #ffffff;
+  --text: #2b2b2b;
+  --accent: #2b78c4;
+}</code></pre></div>
+<p>If you only change these variables, no Rust code needs to change.</p>
+<h2 id="add-a-third-theme">Add a third theme</h2>
+<p>Add another block in <code>src/styles.css</code>:</p>
+<div class="code-wrap"><div class="code-lang">css</div><pre><code>:root[data-theme=&quot;lab&quot;] {
+  --bg: #101820;
+  --bg-surface: #182430;
+  --bg-elevated: #203040;
+  --bg-input: #0b1118;
+  --border: #4d6173;
+  --text: #eaf1f7;
+  --text-bright: #ffffff;
+  --text-muted: #9fb0c0;
+  --accent: #ffb000;
+  --accent-bg: #ffb00022;
+  --accent-border: #ffb00066;
+}</code></pre></div>
+<p>Add the option in <code>src/index.html</code>:</p>
+<div class="code-wrap"><div class="code-lang">html</div><pre><code>&lt;option value=&quot;lab&quot;&gt;Lab&lt;/option&gt;</code></pre></div>
+<p>Update theme normalization in <code>src/main.js</code>:</p>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>function normalizeTheme(theme) {
+  return [&quot;dark&quot;, &quot;bright&quot;, &quot;lab&quot;].includes(theme) ? theme : &quot;dark&quot;;
+}</code></pre></div>
+<p>Rust does not need changes unless you want a different default theme.</p>
+<h2 id="avoid-externally-loaded-css-themes-for-now">Avoid externally loaded CSS themes for now</h2>
+<p>Do not let users point the app to arbitrary external CSS for the public release.</p>
+<p>Reasons:</p>
+<ul>
+<li>larger attack surface;</li>
+<li>harder support;</li>
+<li>harder CSP;</li>
+<li>more weird filesystem edge cases;</li>
+<li>not needed for a small onboarding app.</li>
+</ul>
+<p>Use bundled CSS variables instead.</p>
+<h2 id="current-google-fonts-issue">Current Google Fonts issue</h2>
+<p>The current app loads fonts from Google in <code>src/index.html</code>.</p>
+<p>For public release, prefer bundled or system fonts. Pulling from Google Fonts inside a desktop app is not a security disaster, but it is an external network dependency and a privacy wrinkle.</p>
+<h2 id="best-simple-option-system-fonts">Best simple option: system fonts</h2>
+<p>Replace the Google Fonts lines in <code>src/index.html</code> with nothing, and update CSS:</p>
+<div class="code-wrap"><div class="code-lang">css</div><pre><code>:root {
+  --font-main: system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, &quot;Liberation Mono&quot;, monospace;
+  --font-display: system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;
+}</code></pre></div>
+<p>This gives you a fully offline UI with no bundled font files.</p>
+<h2 id="if-you-want-bundled-fonts">If you want bundled fonts</h2>
+<p>Use only fonts whose licenses allow redistribution. Do not copy random font files from your machine and ship them.</p>
+<p>Recommended layout:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>src/assets/fonts/
+  Baloo2-Regular.woff2
+  Baloo2-Bold.woff2
+  SpaceMono-Regular.woff2
+  SpaceMono-Bold.woff2</code></pre></div>
+<p>Add to <code>src/styles.css</code>:</p>
+<div class="code-wrap"><div class="code-lang">css</div><pre><code>@font-face {
+  font-family: &quot;Baloo 2&quot;;
+  src: url(&quot;./assets/fonts/Baloo2-Regular.woff2&quot;) format(&quot;woff2&quot;);
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: &quot;Space Mono&quot;;
+  src: url(&quot;./assets/fonts/SpaceMono-Regular.woff2&quot;) format(&quot;woff2&quot;);
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}</code></pre></div>
+<p>Then keep:</p>
+<div class="code-wrap"><div class="code-lang">css</div><pre><code>:root {
+  --font-main: &quot;Baloo 2&quot;, system-ui, sans-serif;
+  --font-mono: &quot;Space Mono&quot;, ui-monospace, monospace;
+}</code></pre></div>
+<p>Remove from <code>src/index.html</code>:</p>
+<div class="code-wrap"><div class="code-lang">html</div><pre><code>&lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot;&gt;
+&lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; crossorigin&gt;
+&lt;link href=&quot;https://fonts.googleapis.com/...&quot; rel=&quot;stylesheet&quot;&gt;</code></pre></div>
+<p>Then tighten CSP in <code>src-tauri/tauri.conf.json</code>:</p>
+<div class="code-wrap"><div class="code-lang">json</div><pre><code>&quot;csp&quot;: &quot;default-src &#x27;self&#x27;; style-src &#x27;self&#x27; &#x27;unsafe-inline&#x27;; font-src &#x27;self&#x27;; script-src &#x27;self&#x27;; frame-src &#x27;self&#x27; data:&quot;</code></pre></div>
+<p>If all styles are in CSS files and not inline, later remove <code>unsafe-inline</code> from <code>style-src</code> too.</p>
+<h2 id="keep-font-licenses-visible">Keep font licenses visible</h2>
+<p>Add:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>THIRD_PARTY_NOTICES.md</code></pre></div>
+<p>Include each bundled font name, source, and license.</p>
+  </div>
+</section>
+
+
+<section class="cd-card doc-section" id="public-release">
+  <div class="cd-card-h">
+    <h2 class="cd-card-name"><span>Public release audit</span><span class="cd-badge">plan</span></h2>
+    <div class="cd-card-desc">Personal-details cleanup, security posture, and release checklist.</div>
+  </div>
+  <div class="cd-body doc-body">
+    <h1 id="public-release-audit-and-suggested-fixes">Public release audit and suggested fixes</h1>
+<h2 id="highest-priority-fixes">Highest-priority fixes</h2>
+<h3 id="1-validate-category-names-before-saving">1. Validate category names before saving</h3>
+<p><code>save_category</code> currently joins the user-provided category name into a file path. This can allow writing outside the template directory if a category name contains path traversal.</p>
+<p>Fix in <code>src-tauri/src/store.rs</code>:</p>
+<div class="code-wrap"><div class="code-lang">rust</div><pre><code>fn is_plain_category_name(name: &amp;str) -&gt; bool {
+    let trimmed = name.trim();
+    !trimmed.is_empty()
+        &amp;&amp; !trimmed.contains(&#x27;/&#x27;)
+        &amp;&amp; !trimmed.contains(&#x27;\\&#x27;)
+        &amp;&amp; !trimmed.contains(&quot;..&quot;)
+}</code></pre></div>
+<p>Use it before writing:</p>
+<div class="code-wrap"><div class="code-lang">rust</div><pre><code>pub fn save_category(dir: &amp;str, category: &amp;str, templates: &amp;[Template]) -&gt; Result&lt;(), String&gt; {
+    if !is_plain_category_name(category) {
+        return Err(&quot;category name must be a plain file name&quot;.into());
+    }
+
+    let path = Path::new(dir);
+    fs::create_dir_all(path).map_err(|e| e.to_string())?;
+    let file = path.join(format!(&quot;{}.toml&quot;, category));
+    let s = toml::to_string_pretty(&amp;CategoryFile {
+        template: templates.to_vec(),
+    })
+    .map_err(|e| e.to_string())?;
+
+    fs::write(file, s).map_err(|e| e.to_string())
+}</code></pre></div>
+<p>Also validate in the frontend before saving.</p>
+<h3 id="2-remove-personal-paths-from-readme">2. Remove personal paths from README</h3>
+<p>Replace any path like:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>/Users/&lt;name&gt;/Github/Personal/...</code></pre></div>
+<p>with:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>/path/to/command-deck/onboarding/guides</code></pre></div>
+<h3 id="3-replace-lab-specific-gcp-defaults">3. Replace lab-specific GCP defaults</h3>
+<p>Replace project IDs, zones, VM names, login hosts, and cluster names with placeholders:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>YOUR_PROJECT_ID
+YOUR_VM_NAME
+YOUR_ZONE
+user@login.cluster.edu</code></pre></div>
+<h3 id="4-remove-or-demote-the-install-script">4. Remove or demote the install script</h3>
+<p>The macOS install script uses <code>sudo</code>, deletes the old app from <code>/Applications</code>, copies the new one, and removes quarantine attributes.</p>
+<p>For public release:</p>
+<ul>
+<li>remove it; or</li>
+<li>rename it to <code>dev_install_unsigned_macos.sh</code>; and</li>
+<li>add a warning that it is development-only.</li>
+</ul>
+<p>Do not present quarantine bypass as the normal install path.</p>
+<h3 id="5-make-the-security-model-explicit">5. Make the security model explicit</h3>
+<p>Add this to README and <code>SECURITY.md</code>:</p>
+<div class="code-wrap"><div class="code-lang">md</div><pre><code>Command Deck is a local command launcher. It is not a sandbox.
+
+Templates can run arbitrary shell commands as the current user. Only use templates from sources you trust, and review generated commands before executing them. Treat `.toml` template files as executable code.</code></pre></div>
+<h2 id="should-fix-before-public">Should fix before public</h2>
+<h3 id="tighten-csp">Tighten CSP</h3>
+<p>Suggested <code>tauri.conf.json</code> after bundling fonts:</p>
+<div class="code-wrap"><div class="code-lang">json</div><pre><code>&quot;csp&quot;: &quot;default-src &#x27;self&#x27;; style-src &#x27;self&#x27; &#x27;unsafe-inline&#x27;; font-src &#x27;self&#x27;; script-src &#x27;self&#x27;; frame-src &#x27;self&#x27; data:&quot;</code></pre></div>
+<p>Remove <code>script-src &#x27;unsafe-inline&#x27;</code> if it is not needed.</p>
+<h3 id="remove-external-google-fonts">Remove external Google Fonts</h3>
+<p>Use system fonts or bundled fonts. External fonts create a network dependency and privacy wrinkle.</p>
+<h3 id="make-destructive-templates-less-prominent">Make destructive templates less prominent</h3>
+<p>Move dangerous commands like <code>rsync --delete</code> into separate cards with explicit warnings.</p>
+<p>Example:</p>
+<div class="code-wrap"><div class="code-lang">toml</div><pre><code>[[template]]
+id = &quot;rsync-mirror-delete&quot;
+name = &quot;Mirror with delete&quot;
+desc = &quot;Danger: deletes destination files missing from source. Dry-run first.&quot;
+pattern = &quot;rsync -avzP --delete {src} {host}:{dst}&quot;
+dry_run = { flag = &quot;-n&quot; }</code></pre></div>
+<h3 id="change-personal-metadata-if-desired">Change personal metadata if desired</h3>
+<p>Change:</p>
+<div class="code-wrap"><div class="code-lang">toml</div><pre><code>authors = [&quot;Shmuel&quot;]</code></pre></div>
+<p>to:</p>
+<div class="code-wrap"><div class="code-lang">toml</div><pre><code>authors = [&quot;Command Deck contributors&quot;]</code></pre></div>
+<p>Change the Tauri identifier from personal naming to a neutral reverse-DNS style identifier you control.</p>
+<h2 id="release-audit-commands">Release audit commands</h2>
+<p>Run from repo root:</p>
+<div class="code-wrap"><div class="code-lang">bash</div><pre><code>npm audit
+npm outdated
+cargo audit
+cargo outdated
+rg -n &quot;shmuel|sosovski|iucc|/Users|token|secret|password|apikey|api_key|PRIVATE KEY|BEGIN .* KEY&quot; .
+git ls-files</code></pre></div>
+<p>Manually inspect:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>README.md
+SECURITY.md
+src-tauri/src/store.rs
+src-tauri/tauri.conf.json
+src-tauri/Cargo.toml
+install_and_clean.sh
+src/assets/
+src-tauri/icons/
+*.toml
+*.md
+*.sh</code></pre></div>
+<h2 id="security-md-draft">SECURITY.md draft</h2>
+<div class="code-wrap"><div class="code-lang">md</div><pre><code># Security Policy
+
+Command Deck is a local command launcher. It is not a sandbox.
+
+Templates can run arbitrary shell commands as the current user. Only use templates from sources you trust, and review generated commands before executing them.
+
+## Reporting security issues
+
+Please report security issues privately by opening a private advisory or contacting the maintainer directly.
+
+Do not include secrets, tokens, private keys, or sensitive system details in public issues.
+
+## Secrets
+
+Do not store personal access tokens, API keys, SSH private keys, cloud credentials, or passwords in templates, guides, screenshots, or committed files.
+
+## Template safety
+
+Treat `.toml` template files as executable code. A malicious template can run destructive commands.</code></pre></div>
+  </div>
+</section>
+
+
+<section class="cd-card doc-section" id="linux-support">
+  <div class="cd-card-h">
+    <h2 class="cd-card-name"><span>Linux support</span><span class="cd-badge">plan</span></h2>
+    <div class="cd-card-desc">What fails today and what to change for Ubuntu/Pop!_OS.</div>
+  </div>
+  <div class="cd-body doc-body">
+    <h1 id="linux-support-plan">Linux support plan</h1>
+<h2 id="what-already-works">What already works</h2>
+<p>The core ideas are Linux-friendly:</p>
+<ul>
+<li>template loading;</li>
+<li>TOML parsing;</li>
+<li>guide browser;</li>
+<li>Markdown guides;</li>
+<li>copy command;</li>
+<li>in-app command execution through a shell;</li>
+<li>most lab/HPC command templates.</li>
+</ul>
+<h2 id="main-linux-blocker">Main Linux blocker</h2>
+<p><code>execute ▸ terminal</code> is currently macOS-specific.</p>
+<p>The current terminal handoff uses:</p>
+<ul>
+<li><code>open</code> for Warp;</li>
+<li><code>osascript</code> for Terminal.app and iTerm.</li>
+</ul>
+<p>Those do not exist on Ubuntu or Pop!_OS.</p>
+<h2 id="minimal-linux-support">Minimal Linux support</h2>
+<h3 id="1-add-os-specific-terminal-handoff">1. Add OS-specific terminal handoff</h3>
+<p>Split <code>run_in_terminal</code> by target OS:</p>
+<div class="code-wrap"><div class="code-lang">rust</div><pre><code>#[tauri::command]
+pub fn run_in_terminal(cfg: Config, command: String) -&gt; Result&lt;(), String&gt; {
+    run_in_terminal_impl(cfg, command)
+}
+
+#[cfg(target_os = &quot;macos&quot;)]
+fn run_in_terminal_impl(cfg: Config, command: String) -&gt; Result&lt;(), String&gt; {
+    run_in_terminal_macos(cfg, command)
+}
+
+#[cfg(target_os = &quot;linux&quot;)]
+fn run_in_terminal_impl(_cfg: Config, command: String) -&gt; Result&lt;(), String&gt; {
+    run_in_terminal_linux(command)
+}
+
+#[cfg(target_os = &quot;windows&quot;)]
+fn run_in_terminal_impl(_cfg: Config, _command: String) -&gt; Result&lt;(), String&gt; {
+    Err(&quot;terminal handoff is disabled on Windows by default&quot;.into())
+}</code></pre></div>
+<p>Linux implementation sketch:</p>
+<div class="code-wrap"><div class="code-lang">rust</div><pre><code>#[cfg(target_os = &quot;linux&quot;)]
+fn run_in_terminal_linux(command: String) -&gt; Result&lt;(), String&gt; {
+    let candidates: &amp;[(&amp;str, &amp;[&amp;str])] = &amp;[
+        (&quot;xdg-terminal-exec&quot;, &amp;[]),
+        (&quot;gnome-terminal&quot;, &amp;[&quot;--&quot;, &quot;bash&quot;, &quot;-lc&quot;]),
+        (&quot;konsole&quot;, &amp;[&quot;-e&quot;, &quot;bash&quot;, &quot;-lc&quot;]),
+        (&quot;xfce4-terminal&quot;, &amp;[&quot;--command&quot;]),
+        (&quot;xterm&quot;, &amp;[&quot;-e&quot;]),
+    ];
+
+    for (program, prefix_args) in candidates {
+        if command_exists(program) {
+            let mut cmd = std::process::Command::new(program);
+            cmd.args(*prefix_args);
+            cmd.arg(&amp;command);
+            cmd.spawn().map_err(|e| format!(&quot;{program} handoff failed: {e}&quot;))?;
+            return Ok(());
+        }
+    }
+
+    Err(&quot;no supported Linux terminal found&quot;.into())
+}</code></pre></div>
+<p>Add:</p>
+<div class="code-wrap"><div class="code-lang">rust</div><pre><code>fn command_exists(program: &amp;str) -&gt; bool {
+    std::process::Command::new(&quot;sh&quot;)
+        .arg(&quot;-lc&quot;)
+        .arg(format!(&quot;command -v {program} &gt;/dev/null 2&gt;&amp;1&quot;))
+        .status()
+        .map(|s| s.success())
+        .unwrap_or(false)
+}</code></pre></div>
+<h3 id="2-update-terminal-settings">2. Update terminal settings</h3>
+<p>Instead of only:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>Terminal.app
+iTerm
+Warp</code></pre></div>
+<p>Use platform-aware settings.</p>
+<p>Linux options:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>Default terminal
+GNOME Terminal
+Konsole
+XFCE Terminal
+xterm
+Custom</code></pre></div>
+<h3 id="3-use-safer-shell-fallback">3. Use safer shell fallback</h3>
+<p>Current default shell fallback is <code>/bin/zsh</code>. For Linux, safer fallback:</p>
+<div class="code-wrap"><div class="code-lang">rust</div><pre><code>let shell = std::env::var(&quot;SHELL&quot;).unwrap_or_else(|_| &quot;/bin/sh&quot;.into());</code></pre></div>
+<h3 id="4-add-linux-bundle-targets">4. Add Linux bundle targets</h3>
+<p>In <code>src-tauri/tauri.conf.json</code>:</p>
+<div class="code-wrap"><div class="code-lang">json</div><pre><code>&quot;targets&quot;: [&quot;appimage&quot;, &quot;deb&quot;]</code></pre></div>
+<p>or for broad packaging:</p>
+<div class="code-wrap"><div class="code-lang">json</div><pre><code>&quot;targets&quot;: &quot;all&quot;</code></pre></div>
+<p>For public release, AppImage is usually easiest for students. <code>.deb</code> is nice for Ubuntu/Pop!_OS.</p>
+<h3 id="5-update-readme">5. Update README</h3>
+<p>Add:</p>
+<div class="code-wrap"><div class="code-lang">md</div><pre><code>## Linux support
+
+On Linux, Command Deck supports guides, template filling, copy, dry-run, and in-app execution. Terminal handoff depends on an installed terminal emulator.</code></pre></div>
+<h2 id="linux-status-table">Linux status table</h2>
+<div class="code-wrap"><div class="code-lang">md</div><pre><code>| Feature | Linux status |
+|---|---|
+| Guide browser | Supported |
+| Fill templates | Supported |
+| Copy command | Supported |
+| Execute in app | Supported |
+| Execute in terminal | Planned / terminal-dependent |
+| AppImage build | Recommended |
+| `.deb` build | Recommended |</code></pre></div>
+  </div>
+</section>
+
+
+<section class="cd-card doc-section" id="windows-copy-only">
+  <div class="cd-card-h">
+    <h2 class="cd-card-name"><span>Windows degraded mode</span><span class="cd-badge">plan</span></h2>
+    <div class="cd-card-desc">Copy-only mode for students using SSH, WSL, or VS Code Remote.</div>
+  </div>
+  <div class="cd-body doc-body">
+    <h1 id="degraded-windows-mode-plan">Degraded Windows mode plan</h1>
+<h2 id="goal">Goal</h2>
+<p>Support Windows students who use Windows laptops mainly as a client for Linux workstations, SSH, WSL, or VS Code Remote.</p>
+<p>For them, Command Deck should provide:</p>
+<ul>
+<li>guide browser;</li>
+<li>template tabs;</li>
+<li>fill-in command fields;</li>
+<li>generated command preview;</li>
+<li>copy button;</li>
+<li>onboarding guides.</li>
+</ul>
+<p>It should not run Linux/HPC commands locally by default.</p>
+<p>That is not a failure. That is the correct product boundary.</p>
+<h2 id="windows-support-statement">Windows support statement</h2>
+<div class="code-wrap"><div class="code-lang">md</div><pre><code>## Windows support
+
+Command Deck supports Windows in copy-only mode.
+
+Most lab templates are written for Linux/macOS/HPC shells. On Windows, Command Deck is intended as a guided command reference: fill in template fields, copy the generated command, and paste it into SSH, WSL, Git Bash, or a VS Code Remote terminal connected to your Linux workstation.
+
+Local execution is disabled by default on Windows.</code></pre></div>
+<h2 id="platform-behavior-table">Platform behavior table</h2>
+<div class="code-wrap"><div class="code-lang">md</div><pre><code>| Platform | Guide browser | Fill templates | Copy command | Execute in app | Execute in terminal |
+|---|---:|---:|---:|---:|---:|
+| macOS | yes | yes | yes | yes | yes |
+| Linux | yes | yes | yes | yes | partial/planned |
+| Windows | yes | yes | yes | disabled by default | disabled by default |</code></pre></div>
+<h2 id="runtime-capabilities">Runtime capabilities</h2>
+<p>Add a Tauri command:</p>
+<div class="code-wrap"><div class="code-lang">rust</div><pre><code>#[derive(Debug, Clone, serde::Serialize)]
+struct RuntimeCapabilities {
+    os: String,
+    can_run_in_app: bool,
+    can_run_in_terminal: bool,
+    default_mode: String,
+}
+
+#[tauri::command]
+fn runtime_capabilities() -&gt; RuntimeCapabilities {
+    let os = std::env::consts::OS.to_string();
+
+    RuntimeCapabilities {
+        os: os.clone(),
+        can_run_in_app: os != &quot;windows&quot;,
+        can_run_in_terminal: os == &quot;macos&quot; || os == &quot;linux&quot;,
+        default_mode: if os == &quot;windows&quot; {
+            &quot;copy_only&quot;.into()
+        } else {
+            &quot;full&quot;.into()
+        },
+    }
+}</code></pre></div>
+<p>Register it in <code>main.rs</code>:</p>
+<div class="code-wrap"><div class="code-lang">rust</div><pre><code>.invoke_handler(tauri::generate_handler![
+    get_config,
+    set_config,
+    list_categories,
+    save_category,
+    list_guides,
+    read_guide,
+    runtime_capabilities,
+    runner::run_stream,
+    runner::run_capture,
+    runner::run_in_terminal,
+])</code></pre></div>
+<h2 id="frontend-copy-only-rendering">Frontend copy-only rendering</h2>
+<p>Load capabilities:</p>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>let caps = null;
+
+async function boot() {
+  cfg = await invoke(&quot;get_config&quot;);
+  caps = await invoke(&quot;runtime_capabilities&quot;);
+  applyTheme(cfg.theme);
+  await loadCategories();
+  render();
+}</code></pre></div>
+<p>Effective mode:</p>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>function effectiveExecutionMode() {
+  const mode = cfg?.execution_mode || &quot;auto&quot;;
+  if (mode === &quot;copy_only&quot;) return &quot;copy_only&quot;;
+  if (mode === &quot;full&quot;) return &quot;full&quot;;
+  return caps?.default_mode || &quot;full&quot;;
+}
+
+function isCopyOnlyMode() {
+  return effectiveExecutionMode() === &quot;copy_only&quot;;
+}</code></pre></div>
+<p>In command cards, hide execution buttons when copy-only:</p>
+<div class="code-wrap"><div class="code-lang">js</div><pre><code>const copyOnly = isCopyOnlyMode();
+
+card.innerHTML = `
+  &lt;div class=&quot;cd-card-h&quot;&gt;
+    &lt;h3 class=&quot;cd-card-name&quot;&gt;&lt;span&gt;${esc(tpl.name)}&lt;/span&gt;&lt;/h3&gt;
+    ${tpl.desc ? `&lt;div class=&quot;cd-card-desc&quot;&gt;${esc(tpl.desc)}&lt;/div&gt;` : &quot;&quot;}
+  &lt;/div&gt;
+  &lt;div class=&quot;cd-body&quot;&gt;
+    &lt;div class=&quot;cd-fields&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;cd-out&quot;&gt;&lt;code&gt;&lt;/code&gt;&lt;/div&gt;
+    ${copyOnly ? `&lt;div class=&quot;cd-mode-note&quot;&gt;Copy-only mode: paste this command into SSH, WSL, Git Bash, VS Code Remote, or your Linux workstation terminal.&lt;/div&gt;` : &quot;&quot;}
+    &lt;div class=&quot;cd-actions&quot;&gt;
+      &lt;button class=&quot;cd-act copy&quot;&gt;copy&lt;/button&gt;
+      ${copyOnly ? &quot;&quot; : `&lt;button class=&quot;cd-act dry&quot;&gt;dry-run&lt;/button&gt;`}
+      ${copyOnly ? &quot;&quot; : `&lt;button class=&quot;cd-act exec&quot;&gt;execute ▸ app&lt;/button&gt;`}
+      ${copyOnly ? &quot;&quot; : `&lt;button class=&quot;cd-act term&quot;&gt;execute ▸ terminal&lt;/button&gt;`}
+      ${tpl.guide ? `&lt;button class=&quot;cd-act guide&quot;&gt;guide&lt;/button&gt;` : &quot;&quot;}
+      &lt;button class=&quot;cd-iconbtn edit&quot;&gt;edit&lt;/button&gt;
+      &lt;button class=&quot;cd-iconbtn del&quot;&gt;delete&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;`;</code></pre></div>
+<h2 id="execution-mode-setting">Execution mode setting</h2>
+<p>Add to <code>Config</code>:</p>
+<div class="code-wrap"><div class="code-lang">rust</div><pre><code>#[serde(default = &quot;default_execution_mode&quot;)]
+pub execution_mode: String;
+
+fn default_execution_mode() -&gt; String {
+    &quot;auto&quot;.into()
+}</code></pre></div>
+<p>Settings options:</p>
+<div class="code-wrap"><div class="code-lang">html</div><pre><code>&lt;label&gt;Execution mode&lt;/label&gt;
+&lt;select id=&quot;s-execution-mode&quot;&gt;
+  &lt;option value=&quot;auto&quot;&gt;Auto&lt;/option&gt;
+  &lt;option value=&quot;copy_only&quot;&gt;Copy only&lt;/option&gt;
+  &lt;option value=&quot;full&quot;&gt;Full execution&lt;/option&gt;
+&lt;/select&gt;</code></pre></div>
+<p>Default behavior:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>auto:
+  Windows -&gt; copy-only
+  macOS/Linux -&gt; full</code></pre></div>
+<p>Show a warning if Windows user selects full execution:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>Full execution on Windows requires a compatible shell setup. Most lab templates assume Linux/macOS shell commands.</code></pre></div>
+<h2 id="windows-config-paths">Windows config paths</h2>
+<p>Current code uses <code>HOME/.config/command-deck</code>. That is Unix-shaped.</p>
+<p>Use a cross-platform config directory.</p>
+<p>Recommended target behavior:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>Windows: %APPDATA%/Command Deck/
+macOS:   ~/Library/Application Support/Command Deck/ or current ~/.config if preserving compatibility
+Linux:   ~/.config/command-deck/</code></pre></div>
+<p>Use one of:</p>
+<ul>
+<li>Tauri app path APIs;</li>
+<li><code>directories</code> crate;</li>
+<li><code>dirs</code> crate.</li>
+</ul>
+<h2 id="windows-packaging">Windows packaging</h2>
+<p>For Windows, release artifacts should eventually include:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>Command Deck Setup.exe
+Command Deck.msi</code></pre></div>
+<p>A setup executable is enough for students. MSI is useful for managed deployment.</p>
+<h2 id="windows-onboarding-guide-text">Windows onboarding guide text</h2>
+<p>Add to the onboarding guide:</p>
+<div class="code-wrap"><div class="code-lang">md</div><pre><code>## Windows users
+
+Most lab commands assume a Linux shell. On Windows, use Command Deck to fill and copy commands, then paste them into:
+
+- an SSH terminal connected to your workstation;
+- a VS Code Remote terminal;
+- WSL;
+- Git Bash, only when appropriate.
+
+Do not run Linux/HPC commands directly in PowerShell unless the guide explicitly says so.</code></pre></div>
+<h2 id="implementation-prs">Implementation PRs</h2>
+<h3 id="pr-1-runtime-capabilities">PR 1: Runtime capabilities</h3>
+<p>Files:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>src-tauri/src/main.rs
+src/main.js</code></pre></div>
+<p>Add <code>runtime_capabilities()</code> and load it on boot.</p>
+<h3 id="pr-2-copy-only-rendering">PR 2: Copy-only rendering</h3>
+<p>Files:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>src/main.js
+src/styles.css</code></pre></div>
+<p>Hide execution buttons in copy-only mode and show a copy-only note.</p>
+<h3 id="pr-3-execution-mode-setting">PR 3: Execution mode setting</h3>
+<p>Files:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>src-tauri/src/store.rs
+src/index.html
+src/main.js</code></pre></div>
+<p>Add <code>execution_mode = &quot;auto&quot;</code>.</p>
+<h3 id="pr-4-cross-platform-config-path">PR 4: Cross-platform config path</h3>
+<p>Files:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>src-tauri/src/store.rs
+Cargo.toml</code></pre></div>
+<p>Replace manual <code>HOME/.config</code> paths with a platform-aware config directory.</p>
+<h3 id="pr-5-windows-readme">PR 5: Windows README</h3>
+<p>Files:</p>
+<div class="code-wrap"><div class="code-lang">text</div><pre><code>README.md
+SECURITY.md</code></pre></div>
+<p>Document Windows copy-only mode and the platform feature table.</p>
+  </div>
+</section>
+</main>
+    </div>
+  </div>
+  <a class="top-link" href="#top">top</a>
+</body>
+</html>

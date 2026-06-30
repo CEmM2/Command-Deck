@@ -809,3 +809,28 @@ body {
     max-height: 160px;
   }
 }
+
+.cd-card.guide-only {
+  opacity: 0.98;
+}
+
+.cd-guide-summary {
+  font-size: 0.95rem;
+  opacity: 0.85;
+  margin-bottom: 0.75rem;
+}
+
+.cd-kind-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  opacity: 0.75;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+.cd-card.unsupported {
+  outline: 2px dashed currentColor;
+}
