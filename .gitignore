@@ -39,3 +39,4 @@ Thumbs.db
 .idea/
 .vscode/
 com_dat/
+dev/env.local

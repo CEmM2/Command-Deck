@@ -152,7 +152,7 @@ kind = "command"
 For this repo's current GCP notes, point the guides directory at:
 
 ```text
-/Users/shmuelosovski/Github/Personal/command-deck/com_dat
+/path/to/command-deck/com_dat
 ```
 
 ## Appearance
@@ -213,9 +213,10 @@ The first time you run something that needs an SSH key passphrase, do it via
 **execute ▸ terminal** so the agent can prompt you; afterwards the in-app
 streaming runner will reuse the agent.
 
-## A word of caution
+## Security Model & A word of caution
 
-This app runs whatever command you assemble — that's the point. There's no
-sandbox. Use **dry-run** first for anything destructive (note that
-`rsync --delete` can remove files on the receiving side), and prefer the
-terminal handoff when you want to see prompts before things happen.
+Command Deck is a local command launcher. It is not a sandbox.
+
+Templates can run arbitrary shell commands as the current user. Only use templates from sources you trust, and review generated commands before executing them. Treat `.toml` template files as executable code.
+
+Use **dry-run** first for anything destructive, and prefer the terminal handoff when you want to see prompts before things happen.

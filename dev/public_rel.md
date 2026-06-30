@@ -80,7 +80,7 @@ Templates can run arbitrary shell commands as the current user. Only use templat
 
 Should fix before public
 
-Tighten CSP
+6. Tighten CSP
 
 Suggested tauri.conf.json after bundling fonts:
 
@@ -90,10 +90,10 @@ Suggested tauri.conf.json after bundling fonts:
 
 Remove script-src 'unsafe-inline' if it is not needed.
 
-Remove external Google Fonts
+7. Remove external Google Fonts
 Use bundled fonts - bundle the current fonts as resources in the app and load them from there. (External fonts create a network dependency and privacy wrinkle.) IMPORTANT - are they copyright protected? Do I need to license them?
 
-Make destructive templates less prominent
+8. Make destructive templates less prominent
 
 Move dangerous commands like rsync --delete into separate cards with explicit warnings.
 
@@ -107,17 +107,5 @@ desc = "Danger: deletes destination files missing from source. Dry-run first."
 pattern = "rsync -avzP --delete {src} {host}:{dst}"
 dry_run = { flag = "-n" }
 ```
-Change personal metadata
 
-Change:
-
-```toml
-authors = ["Shmuel"]
-```
-to:
-
-```toml
-authors = ["Shmulik Osovski"]
-```
-
-Change the Tauri identifier from personal naming to a neutral reverse-DNS style identifier you control.
+9. Change the Tauri identifier from personal naming to a neutral reverse-DNS style identifier you control.

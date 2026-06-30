@@ -34,6 +34,11 @@ if [[ ! -d node_modules ]]; then
   npm install
 fi
 
+if [[ -f "$SCRIPT_DIR/dev/env.local" ]]; then
+  log "Loading personal configuration from dev/env.local"
+  source "$SCRIPT_DIR/dev/env.local"
+fi
+
 log "Building Command Deck"
 npm run tauri build
 

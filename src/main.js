@@ -1,5 +1,14 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import "@fontsource/baloo-2/400.css";
+import "@fontsource/baloo-2/500.css";
+import "@fontsource/baloo-2/600.css";
+import "@fontsource/baloo-2/700.css";
+import "@fontsource/baloo-2/800.css";
+import "@fontsource/patrick-hand/400.css";
+import "@fontsource/space-mono/400.css";
+import "@fontsource/space-mono/700.css";
+import "@fontsource-variable/fraunces";
 
 let cfg = null;
 let caps = null;
@@ -346,6 +355,10 @@ $("m-save").onclick = async () => {
   const guide = $("m-guide").value.trim();
 
   if (!name || !catName) return;
+  if (catName.includes("/") || catName.includes("\\") || catName.includes("..")) {
+    alert("Category name cannot contain /, \\, or ..");
+    return;
+  }
   if (kind === "command" && !pattern) return;
   if (kind === "guide" && !guide) return;
 

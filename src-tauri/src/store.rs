@@ -204,6 +204,10 @@ pub fn load_categories(dir: &str) -> Result<Vec<Category>, String> {
 
 /// Persist a category's templates back to its file.
 pub fn save_category(dir: &str, category: &str, templates: &[Template]) -> Result<(), String> {
+    if category.contains('/') || category.contains('\\') || category.contains("..") {
+        return Err("Invalid category name".into());
+    }
+    
     let path = Path::new(dir);
     fs::create_dir_all(path).map_err(|e| e.to_string())?;
     let file = path.join(format!("{}.toml", category));
@@ -362,6 +366,18 @@ fn seed_defaults(dir: &Path) -> Result<(), String> {
 id = "rsync-push"
 name = "Push laptop -> remote"
 desc = "Copy a local dir up to the VM/cluster. Trailing slash on src copies contents."
+pattern = "rsync -avzP {src} {host}:{dst}"
+dry_run = { flag = "-n" }
+fields = [
+  { key = "src",  label = "Local path",  placeholder = "./project/" },
+  { key = "host", label = "Remote host", placeholder = "user@cluster" },
+  { key = "dst",  label = "Remote path", placeholder = "~/project/" },
+]
+
+[[template]]
+id = "rsync-push-mirror"
+name = "Mirror push (Delete)"
+desc = "Danger: deletes destination files missing from source. Dry-run first."
 pattern = "rsync -avzP --delete {src} {host}:{dst}"
 dry_run = { flag = "-n" }
 fields = [
@@ -460,7 +476,8 @@ fn extra_default_files() -> [(&'static str, &'static str); 7] {
     ]
 }
 
-fn pbs_defaults() -> &'static str {
+fn pbs_defaults() -> String {
+    let login_host = option_env!("CD_LOGIN_HOST").unwrap_or("user@login.cluster.edu");
     r#"
 [[template]]
 id = "pbs-submit"
@@ -542,12 +559,15 @@ fields = [
   { key = "local_port",   label = "Local port",   placeholder = "8888", default = "8888" },
   { key = "compute_node", label = "Compute node", placeholder = "node001" },
   { key = "remote_port",  label = "Remote port",  placeholder = "8888", default = "8888" },
-  { key = "login_host",   label = "Login host",   placeholder = "user@login.cluster.edu" },
+  { key = "login_host",   label = "Login host",   placeholder = "{CD_LOGIN_HOST}" },
 ]
-"#
+"#.replace("{CD_LOGIN_HOST}", login_host)
 }
 
-fn gcp_gpu_vm_defaults() -> &'static str {
+fn gcp_gpu_vm_defaults() -> String {
+    let project = option_env!("CD_PROJECT_ID").unwrap_or("YOUR_PROJECT_ID");
+    let zone = option_env!("CD_ZONE").unwrap_or("YOUR_ZONE");
+    let vm = option_env!("CD_VM_NAME").unwrap_or("YOUR_VM_NAME");
     r#"
 [[template]]
 id = "gcp-gpu-status"
@@ -622,13 +642,18 @@ guide = "gcp-gpu-vm-cheatsheet.md"
 pattern = "gcloud compute instances list --project={project} --filter=\"name~{name_filter}\""
 dry_run = {}
 fields = [
-  { key = "project",     label = "Project",     placeholder = "iucc-computational-design", default = "iucc-computational-design" },
+  { key = "project",     label = "Project",     placeholder = "{CD_PROJECT_ID}", default = "{CD_PROJECT_ID}" },
   { key = "name_filter", label = "Name filter", placeholder = "gpu", default = "gpu" },
 ]
-"#
+"#.replace("{CD_PROJECT_ID}", project)
+  .replace("{CD_ZONE}", zone)
+  .replace("{CD_VM_NAME}", vm)
 }
 
-fn gcp_gpu_admin_defaults() -> &'static str {
+fn gcp_gpu_admin_defaults() -> String {
+    let project = option_env!("CD_PROJECT_ID").unwrap_or("YOUR_PROJECT_ID");
+    let zone = option_env!("CD_ZONE").unwrap_or("YOUR_ZONE");
+    let vm = option_env!("CD_VM_NAME").unwrap_or("YOUR_VM_NAME");
     r#"
 [[template]]
 id = "gcp-gpu-reset"
@@ -683,15 +708,31 @@ fields = [
   { key = "project",      label = "Project",      placeholder = "iucc-computational-design", default = "iucc-computational-design" },
   { key = "source_range", label = "Source range", placeholder = "35.235.240.0/20", default = "35.235.240.0/20" },
 ]
-"#
+"#.replace("{CD_PROJECT_ID}", project)
+  .replace("{CD_ZONE}", zone)
+  .replace("{CD_VM_NAME}", vm)
 }
 
-fn gpu_sync_defaults() -> &'static str {
+fn gpu_sync_defaults() -> String {
+    let remote_repo = option_env!("CD_REMOTE_REPO").unwrap_or("YOUR_REMOTE_REPO");
     r#"
 [[template]]
 id = "gpu-sync-repo"
 name = "Sync repo to GPU"
-desc = "Mirror the local repo into the GPU VM project directory."
+desc = "Sync the local repo into the GPU VM project directory."
+guide = "gcp-gpu-vm-cheatsheet.md"
+pattern = "rsync -az --exclude=.git --exclude=.venv --exclude=__pycache__ --exclude=.pytest_cache --exclude=.mypy_cache --exclude=.ruff_cache {local_dir} {host}:{remote_repo}/"
+dry_run = { flag = "-n" }
+fields = [
+  { key = "local_dir",   label = "Local dir",   placeholder = "./", default = "./" },
+  { key = "host",        label = "Host",        placeholder = "gpu", default = "gpu" },
+  { key = "remote_repo", label = "Remote repo", placeholder = "/data/repos/NumerixWeave", default = "/data/repos/NumerixWeave" },
+]
+
+[[template]]
+id = "gpu-mirror-repo"
+name = "Mirror repo to GPU (Delete)"
+desc = "Danger: deletes remote files. Mirror the local repo into the GPU VM project directory."
 guide = "gcp-gpu-vm-cheatsheet.md"
 pattern = "rsync -az --delete --exclude=.git --exclude=.venv --exclude=__pycache__ --exclude=.pytest_cache --exclude=.mypy_cache --exclude=.ruff_cache {local_dir} {host}:{remote_repo}/"
 dry_run = { flag = "-n" }
@@ -755,8 +796,8 @@ fields = [
 
 [[template]]
 id = "gpu-mirror-pull-results"
-name = "Mirror pull results"
-desc = "Mirror remote results locally, deleting local files missing remotely."
+name = "Mirror pull results (Delete)"
+desc = "Danger: deletes local files. Mirror remote results locally, deleting local files missing remotely."
 guide = "gcp-gpu-vm-cheatsheet.md"
 pattern = "rsync -azP --delete {host}:{remote_results}/ {local_results}/"
 dry_run = { flag = "-n" }
@@ -768,7 +809,9 @@ fields = [
 "#
 }
 
-fn gpu_remote_defaults() -> &'static str {
+fn gpu_remote_defaults() -> String {
+    let remote_repo = option_env!("CD_REMOTE_REPO").unwrap_or("YOUR_REMOTE_REPO");
+    let remote_dir = option_env!("CD_REMOTE_DIR").unwrap_or("YOUR_REMOTE_DIR");
     r#"
 [[template]]
 id = "gpu-ssh-health"
@@ -813,14 +856,16 @@ pattern = "ssh {host} 'cd {remote_dir} && find . -maxdepth {depth} -type f -prin
 dry_run = {}
 fields = [
   { key = "host",       label = "Host",       placeholder = "gpu", default = "gpu" },
-  { key = "remote_dir", label = "Remote dir", placeholder = "/data/repos/NumerixWeave/examples/fem/demos/demo_RMT", default = "/data/repos/NumerixWeave/examples/fem/demos/demo_RMT" },
+  { key = "remote_dir", label = "Remote dir", placeholder = "{CD_REMOTE_DIR}", default = "{CD_REMOTE_DIR}" },
   { key = "depth",      label = "Depth",      placeholder = "3", default = "3" },
   { key = "count",      label = "Count",      placeholder = "50", default = "50" },
 ]
-"#
+"#.replace("{CD_REMOTE_REPO}", remote_repo)
+  .replace("{CD_REMOTE_DIR}", remote_dir)
 }
 
-fn gpu_tmux_defaults() -> &'static str {
+fn gpu_tmux_defaults() -> String {
+    let remote_dir = option_env!("CD_REMOTE_DIR").unwrap_or("YOUR_REMOTE_DIR");
     r#"
 [[template]]
 id = "gpu-tmux-start-sim"
@@ -832,7 +877,7 @@ dry_run = {}
 fields = [
   { key = "host",       label = "Host",       placeholder = "gpu", default = "gpu" },
   { key = "session",    label = "Session",    placeholder = "imp", default = "imp" },
-  { key = "remote_dir", label = "Remote dir", placeholder = "/data/repos/NumerixWeave/examples/fem/demos/demo_RMT", default = "/data/repos/NumerixWeave/examples/fem/demos/demo_RMT" },
+  { key = "remote_dir", label = "Remote dir", placeholder = "{CD_REMOTE_DIR}", default = "{CD_REMOTE_DIR}" },
   { key = "command",    label = "Command",    placeholder = "uv run python run.py config_implicit.yaml", default = "uv run python run.py config_implicit.yaml" },
   { key = "log",        label = "Log",        placeholder = "imp.log", default = "imp.log" },
 ]
@@ -869,7 +914,7 @@ pattern = "ssh {host} 'tail -f {remote_dir}/{log}'"
 dry_run = {}
 fields = [
   { key = "host",       label = "Host",       placeholder = "gpu", default = "gpu" },
-  { key = "remote_dir", label = "Remote dir", placeholder = "/data/repos/NumerixWeave/examples/fem/demos/demo_RMT", default = "/data/repos/NumerixWeave/examples/fem/demos/demo_RMT" },
+  { key = "remote_dir", label = "Remote dir", placeholder = "{CD_REMOTE_DIR}", default = "{CD_REMOTE_DIR}" },
   { key = "log",        label = "Log",        placeholder = "imp.log", default = "imp.log" },
 ]
 
@@ -897,10 +942,12 @@ fields = [
   { key = "host",    label = "Host",    placeholder = "gpu", default = "gpu" },
   { key = "session", label = "Session", placeholder = "imp", default = "imp" },
 ]
-"#
+"#.replace("{CD_REMOTE_DIR}", remote_dir)
 }
 
-fn gpu_profiling_defaults() -> &'static str {
+fn gpu_profiling_defaults() -> String {
+    let remote_dir = option_env!("CD_REMOTE_DIR").unwrap_or("YOUR_REMOTE_DIR");
+    let profile_dir = option_env!("CD_PROFILE_DIR").unwrap_or("YOUR_PROFILE_DIR");
     r#"
 [[template]]
 id = "gpu-nsight-compute"
@@ -911,8 +958,8 @@ pattern = "ssh {host} 'cd {remote_dir} && ncu -o {profile_path} -f --set full {c
 dry_run = {}
 fields = [
   { key = "host",         label = "Host",         placeholder = "gpu", default = "gpu" },
-  { key = "remote_dir",   label = "Remote dir",   placeholder = "/data/repos/NumerixWeave/examples/fem/demos/demo_RMT", default = "/data/repos/NumerixWeave/examples/fem/demos/demo_RMT" },
-  { key = "profile_path", label = "Profile path", placeholder = "/data/profiles/imp-profile", default = "/data/profiles/imp-profile" },
+  { key = "remote_dir",   label = "Remote dir",   placeholder = "{CD_REMOTE_DIR}", default = "{CD_REMOTE_DIR}" },
+  { key = "profile_path", label = "Profile path", placeholder = "{CD_PROFILE_DIR}/imp-profile", default = "{CD_PROFILE_DIR}/imp-profile" },
   { key = "command",      label = "Command",      placeholder = "uv run python run.py config_implicit.yaml", default = "uv run python run.py config_implicit.yaml" },
 ]
 
@@ -925,8 +972,8 @@ pattern = "ssh {host} 'cd {remote_dir} && nsys profile -o {profile_path} -f true
 dry_run = {}
 fields = [
   { key = "host",         label = "Host",         placeholder = "gpu", default = "gpu" },
-  { key = "remote_dir",   label = "Remote dir",   placeholder = "/data/repos/NumerixWeave/examples/fem/demos/demo_RMT", default = "/data/repos/NumerixWeave/examples/fem/demos/demo_RMT" },
-  { key = "profile_path", label = "Profile path", placeholder = "/data/profiles/imp-nsys", default = "/data/profiles/imp-nsys" },
+  { key = "remote_dir",   label = "Remote dir",   placeholder = "{CD_REMOTE_DIR}", default = "{CD_REMOTE_DIR}" },
+  { key = "profile_path", label = "Profile path", placeholder = "{CD_PROFILE_DIR}/imp-nsys", default = "{CD_PROFILE_DIR}/imp-nsys" },
   { key = "command",      label = "Command",      placeholder = "uv run python run.py config_implicit.yaml", default = "uv run python run.py config_implicit.yaml" },
 ]
 
@@ -939,10 +986,11 @@ pattern = "rsync -azP {host}:{remote_profile_file} {local_profiles}/"
 dry_run = { flag = "-n" }
 fields = [
   { key = "host",                label = "Host",                placeholder = "gpu", default = "gpu" },
-  { key = "remote_profile_file", label = "Remote profile file", placeholder = "/data/profiles/imp-profile.ncu-rep" },
+  { key = "remote_profile_file", label = "Remote profile file", placeholder = "{CD_PROFILE_DIR}/imp-profile.ncu-rep" },
   { key = "local_profiles",      label = "Local profiles",      placeholder = "profiles", default = "profiles" },
 ]
-"#
+"#.replace("{CD_REMOTE_DIR}", remote_dir)
+  .replace("{CD_PROFILE_DIR}", profile_dir)
 }
 
 #[cfg(test)]
