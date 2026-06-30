@@ -71,6 +71,9 @@ function renderTabs() {
   tabs.appendChild(add);
 }
 function templateKind(tpl) {
+  if (tpl.kind === "command" && !tpl.pattern && tpl.guide) {
+    return "guide";
+  }
   return tpl.kind || "command";
 }
 
@@ -312,7 +315,7 @@ function openModal(tpl) {
   $("modal-title").textContent = tpl ? "Edit template" : "New template";
   $("m-name").value = tpl ? tpl.name : "";
   $("m-cat").value = tpl ? tpl.category : (active || "");
-  $("m-kind").value = tpl ? (tpl.kind || "command") : "command";
+  $("m-kind").value = tpl ? templateKind(tpl) : "command";
   $("m-desc").value = tpl ? tpl.desc : "";
   $("m-guide").value = tpl ? (tpl.guide || "") : "";
   $("m-pattern").value = tpl ? tpl.pattern : "";
