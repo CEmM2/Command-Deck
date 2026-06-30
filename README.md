@@ -56,6 +56,26 @@ The built app lands in
 `bundle/dmg/`. Because it's unsigned, the first launch needs a
 right-click → Open (or `xattr -dr com.apple.quarantine "Command Deck.app"`).
 
+## Publish a public release
+
+This repository has a `public` remote pointing at
+`git@github.com:CEmM2/Command-Deck.git`.
+
+Publishing code and building a release are intentionally separate:
+
+```bash
+# Publish the current main branch to the public repo.
+git push public main
+
+# Trigger the public release build. The workflow only runs for v* tags.
+git tag -a v0.1.0 -m "Command Deck v0.1.0"
+git push public v0.1.0
+```
+
+The tag push starts `.github/workflows/release.yml` in the public repo. It builds
+macOS and Linux bundles, uploads them as workflow artifacts, and attaches the
+DMG/AppImage/deb assets to the matching GitHub release.
+
 ---
 
 ## How templates work
