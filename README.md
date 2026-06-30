@@ -73,8 +73,9 @@ git push public v0.1.0
 ```
 
 The tag push starts `.github/workflows/release.yml` in the public repo. It builds
-macOS and Linux bundles, uploads them as workflow artifacts, and attaches the
-DMG/AppImage/deb assets to the matching GitHub release.
+macOS, Linux, and Windows bundles, uploads them as workflow artifacts, and
+attaches the DMG/AppImage/deb/Windows installer assets to the matching GitHub
+release.
 
 ---
 
