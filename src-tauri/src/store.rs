@@ -87,7 +87,7 @@ pub struct Config {
 
 impl Default for Config {
     fn default() -> Self {
-        let shell = std::env::var("SHELL").unwrap_or_else(|_| "/bin/zsh".into());
+        let shell = std::env::var("SHELL").unwrap_or_else(|_| "/bin/sh".into());
         Config {
             templates_dir: default_templates_dir(),
             guides_dir: default_guides_dir(),

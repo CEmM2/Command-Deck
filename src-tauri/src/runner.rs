@@ -91,6 +91,11 @@ pub fn run_capture(cfg: Config, command: String) -> Result<String, String> {
 /// password prompts, long-lived processes) work properly.
 #[tauri::command]
 pub fn run_in_terminal(cfg: Config, command: String) -> Result<(), String> {
+    run_in_terminal_impl(cfg, command)
+}
+
+#[cfg(target_os = "macos")]
+fn run_in_terminal_impl(cfg: Config, command: String) -> Result<(), String> {
     if cfg.terminal == "warp" {
         let command = percent_encode_url_component(&command);
         let url = format!("warp://action/new_tab?command={command}");
@@ -129,6 +134,60 @@ end tell"#
         .spawn()
         .map_err(|e| format!("osascript failed: {e}"))?;
     Ok(())
+}
+
+#[cfg(target_os = "linux")]
+fn run_in_terminal_impl(cfg: Config, command: String) -> Result<(), String> {
+    run_in_terminal_linux(cfg, command)
+}
+
+#[cfg(target_os = "linux")]
+fn run_in_terminal_linux(cfg: Config, command: String) -> Result<(), String> {
+    let mut candidates: Vec<(&str, &[&str])> = vec![];
+    
+    // If user selected a specific terminal, prioritize it
+    match cfg.terminal.as_str() {
+        "gnome-terminal" => candidates.push(("gnome-terminal", &["--", "bash", "-lc"])),
+        "konsole" => candidates.push(("konsole", &["-e", "bash", "-lc"])),
+        "xfce4-terminal" => candidates.push(("xfce4-terminal", &["--command"])),
+        "xterm" => candidates.push(("xterm", &["-e"])),
+        "custom" | "default" | _ => {} // Fall through to standard list
+    }
+
+    candidates.extend_from_slice(&[
+        ("xdg-terminal-exec", &[]),
+        ("gnome-terminal", &["--", "bash", "-lc"]),
+        ("konsole", &["-e", "bash", "-lc"]),
+        ("xfce4-terminal", &["--command"]),
+        ("xterm", &["-e"]),
+    ]);
+
+    for (program, prefix_args) in candidates {
+        if command_exists(program) {
+            let mut cmd = std::process::Command::new(program);
+            cmd.args(prefix_args);
+            cmd.arg(&command);
+            cmd.spawn().map_err(|e| format!("{program} handoff failed: {e}"))?;
+            return Ok(());
+        }
+    }
+
+    Err("no supported Linux terminal found".into())
+}
+
+#[cfg(target_os = "linux")]
+fn command_exists(program: &str) -> bool {
+    std::process::Command::new("sh")
+        .arg("-lc")
+        .arg(format!("command -v {program} >/dev/null 2>&1"))
+        .status()
+        .map(|s| s.success())
+        .unwrap_or(false)
+}
+
+#[cfg(target_os = "windows")]
+fn run_in_terminal_impl(_cfg: Config, _command: String) -> Result<(), String> {
+    Err("terminal handoff is disabled on Windows by default".into())
 }
 
 fn percent_encode_url_component(value: &str) -> String {

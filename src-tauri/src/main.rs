@@ -34,6 +34,29 @@ fn read_guide(cfg: Config, name: String) -> Result<GuideContent, String> {
     store::read_guide(&cfg.guides_dir, &name)
 }
 
+#[derive(Debug, Clone, serde::Serialize)]
+struct RuntimeCapabilities {
+    os: String,
+    can_run_in_app: bool,
+    can_run_in_terminal: bool,
+    default_mode: String,
+}
+
+#[tauri::command]
+fn runtime_capabilities() -> RuntimeCapabilities {
+    let os = std::env::consts::OS.to_string();
+    RuntimeCapabilities {
+        os: os.clone(),
+        can_run_in_app: os != "windows",
+        can_run_in_terminal: os == "macos" || os == "linux",
+        default_mode: if os == "windows" {
+            "copy_only".into()
+        } else {
+            "full".into()
+        },
+    }
+}
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -43,6 +66,7 @@ fn main() {
             save_category,
             list_guides,
             read_guide,
+            runtime_capabilities,
             runner::run_stream,
             runner::run_capture,
             runner::run_in_terminal,

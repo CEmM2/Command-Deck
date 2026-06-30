@@ -1,8 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 
-// ---- state ----
 let cfg = null;
+let caps = null;
 let categories = [];   // [{name, templates:[...]}]
 let guides = [];       // [{name,title,kind}]
 let active = null;
@@ -402,7 +402,27 @@ $("open-settings").onclick = () => {
   $("s-dir").value = cfg.templates_dir || cfg.templatesDir || "";
   $("s-guides-dir").value = cfg.guides_dir || cfg.guidesDir || "";
   $("s-shell").value = cfg.shell || "";
-  $("s-term").value = cfg.terminal || "terminal";
+
+  const termSelect = $("s-term");
+  termSelect.innerHTML = "";
+  if (caps && caps.os === "linux") {
+    termSelect.innerHTML = `
+      <option value="default">Default terminal</option>
+      <option value="gnome-terminal">GNOME Terminal</option>
+      <option value="konsole">Konsole</option>
+      <option value="xfce4-terminal">XFCE Terminal</option>
+      <option value="xterm">xterm</option>
+      <option value="custom">Custom</option>
+    `;
+  } else {
+    termSelect.innerHTML = `
+      <option value="terminal">Terminal.app</option>
+      <option value="iterm">iTerm</option>
+      <option value="warp">Warp</option>
+    `;
+  }
+  
+  $("s-term").value = cfg.terminal || (caps && caps.os === "linux" ? "default" : "terminal");
   $("s-theme").value = normalizeTheme(cfg.theme);
   $("settings").style.display = "flex";
 };
@@ -571,6 +591,7 @@ async function reload() {
 }
 async function boot() {
   cfg = await invoke("get_config");
+  caps = await invoke("runtime_capabilities");
   applyTheme(cfg.theme);
   await reload();
 }

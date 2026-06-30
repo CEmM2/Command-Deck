@@ -172,6 +172,20 @@ light/dark color-token approach while keeping Command Deck's own HTML structure.
 | **execute ▸ terminal** | Hands the command to Terminal.app, iTerm, or Warp in a new window/tab. Best for interactive/long-lived things — ssh tunnels, anything that prompts. |
 | **guide** | Opens the linked local guide file, when the template declares `guide`. |
 
+## Linux support
+
+On Linux, Command Deck supports guides, template filling, copy, dry-run, and in-app execution. Terminal handoff depends on an installed terminal emulator.
+
+| Feature | Linux status |
+|---|---|
+| Guide browser | Supported |
+| Fill templates | Supported |
+| Copy command | Supported |
+| Execute in app | Supported |
+| Execute in terminal | Supported (depends on emulator) |
+| AppImage build | Supported |
+| `.deb` build | Supported |
+
 ## Why commands "just work" with SSH
 
 Commands run through your **login shell** (`$SHELL -lic '<command>'`), so your
