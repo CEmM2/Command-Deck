@@ -4,6 +4,22 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing v* tag to build"
+        required: true
+        type: string
+      platform:
+        description: "Platform to build"
+        required: true
+        default: Windows
+        type: choice
+        options:
+          - Windows
+          - macOS
+          - Linux
+          - all
 
 permissions:
   contents: write
@@ -12,6 +28,8 @@ jobs:
   build:
     name: Build ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
+    env:
+      SHOULD_BUILD: ${{ github.event_name == 'push' || inputs.platform == 'all' || inputs.platform == matrix.name }}
 
     strategy:
       fail-fast: false
@@ -39,10 +57,13 @@ jobs:
 
     steps:
       - name: Check out repository
+        if: env.SHOULD_BUILD == 'true'
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
 
       - name: Install Linux dependencies
-        if: runner.os == 'Linux'
+        if: env.SHOULD_BUILD == 'true' && runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -52,26 +73,32 @@ jobs:
             patchelf
 
       - name: Set up Node
+        if: env.SHOULD_BUILD == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
       - name: Set up Rust
+        if: env.SHOULD_BUILD == 'true'
         uses: dtolnay/rust-toolchain@stable
 
       - name: Cache Rust dependencies
+        if: env.SHOULD_BUILD == 'true'
         uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
 
       - name: Install frontend dependencies
+        if: env.SHOULD_BUILD == 'true'
         run: npm ci
 
       - name: Build Tauri app
+        if: env.SHOULD_BUILD == 'true'
         run: npm run tauri build -- --bundles ${{ matrix.bundles }}
 
       - name: Upload build artifact
+        if: env.SHOULD_BUILD == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact-name }}
@@ -79,7 +106,10 @@ jobs:
           if-no-files-found: error
 
       - name: Attach assets to GitHub release
+        if: env.SHOULD_BUILD == 'true'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
           files: ${{ matrix.artifact-path }}
           generate_release_notes: true
+          overwrite_files: true

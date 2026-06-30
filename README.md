@@ -77,6 +77,10 @@ macOS, Linux, and Windows bundles, uploads them as workflow artifacts, and
 attaches the DMG/AppImage/deb/Windows installer assets to the matching GitHub
 release.
 
+To rebuild only one platform for an existing tag, open the GitHub Actions
+`Release` workflow, choose **Run workflow**, enter the tag such as `v0.1.1`, and
+choose `Windows`, `macOS`, `Linux`, or `all`.
+
 ---
 
 ## How templates work
